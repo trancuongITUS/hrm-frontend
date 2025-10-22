@@ -1,0 +1,72 @@
+---
+description: This rule defines consistent coding conventions for Angular projects, ensuring readability, maintainability, and alignment with Angular’s official style guide. It enforces clear naming standards, file organization, and TypeScript best practices for scalable and predictable frontend applications.
+globs: *.ts
+alwaysApply: true
+---
+
+- **Coding Convention:**
+  - *Basic Principles:*
+    - Use English for all code, comments, and documentation.
+    - Use strict TypeScript configuration (`"strict": true` in tsconfig).
+    - Always declare types for variables, parameters, and return values.
+    - Avoid using `any`; use `unknown` or define proper interfaces.
+    - Use interfaces for data models instead of classes where possible.
+    - Use RxJS operators properly; avoid nested subscriptions (use `switchMap`, `mergeMap`, etc.).
+    - Use async/await or observables consistently for asynchronous logic — don’t mix them in the same context.
+    - Follow DRY and KISS principles — extract reusable logic into shared services or utility functions.
+    - Avoid logic in templates; move it to the component class.
+    - Use JSDoc or inline comments to describe complex logic or public APIs.
+    - One top-level export per file.
+
+  - *Naming Convention:*
+    - Use **kebab-case** for file and directory names (e.g., `user-profile.component.ts`).
+    - Use **PascalCase** for class names, including components, directives, pipes, and services (e.g., `UserProfileComponent`, `AuthService`).
+    - Use **camelCase** for variable and function names (e.g., `userProfile`, `loadUserData()`).
+    - Use **UPPER_CASE** for constants.
+    - Suffix files based on their purpose:
+      - `.component.ts` for components
+      - `.service.ts` for services
+      - `.directive.ts` for directives
+      - `.pipe.ts` for pipes
+      - `.module.ts` for modules
+      - `.model.ts` or `.interface.ts` for data models
+    - Boolean variables should start with verbs like `is`, `has`, or `can` (e.g., `isVisible`, `hasPermission`).
+    - Use meaningful names; avoid abbreviations unless they are standard (e.g., `API`, `URL`, `HTML`).
+
+  - *Code Organization:*
+    - Follow Angular’s folder-by-feature structure:
+      ```
+      src/app/
+        ├── core/           # Singleton services, interceptors, guards
+        ├── shared/         # Shared modules, components, pipes
+        ├── features/       # Feature modules (e.g., users, auth, dashboard)
+        └── app.module.ts   # Root module
+      ```
+    - Each feature module should contain its own `components`, `services`, and `models`.
+    - Keep components small and focused — ideally one UI responsibility per component.
+    - Use smart (container) and dumb (presentational) components:
+      - **Smart components** handle state and logic.
+      - **Dumb components** handle UI display and emit events.
+    - Use `@Input()` and `@Output()` decorators to communicate between parent and child components.
+    - Keep business logic in services, not in components.
+    - Group related modules under feature modules, and import them into `AppModule` or a routing module as needed.
+    - Avoid deep nesting of folders — keep the structure simple and predictable.
+
+  - *Styling & Template Guidelines:*
+    - Use inline styles and templates only for very small components; otherwise, keep `.html` and `.scss` files separate.
+    - Follow Angular’s built-in linting rules for accessibility (ARIA roles, alt attributes, etc.).
+    - Use Angular’s built-in form handling (`ReactiveFormsModule` or `FormsModule`) properly — avoid mixing both in the same component.
+    - Prefer `OnPush` change detection for performance-critical components.
+    - Avoid direct DOM manipulation; use `Renderer2` or Angular directives.
+
+  - *Imports and Dependencies:*
+    - Always use relative imports within the same module.
+    - Use path aliases (`@app/`, `@shared/`, etc.) for cross-feature imports.
+    - Import only necessary symbols from Angular packages (e.g., `import { Component } from '@angular/core';`).
+    - Avoid circular dependencies by isolating shared logic into separate modules.
+    - Use dependency injection to manage services — don’t instantiate them manually.
+
+  - *Testing:*
+    - Each component, service, and pipe should have a corresponding `.spec.ts` file.
+    - Use `TestBed` for component testing and mock dependencies where possible.
+    - Avoid testing Angular internals; focus on inputs, outputs, and observable behaviors.
