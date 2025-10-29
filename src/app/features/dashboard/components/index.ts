@@ -4,4 +4,3 @@ export * from './notificationswidget';
 export * from './recentsaleswidget';
 export * from './revenuestreamwidget';
 export * from './statswidget';
-

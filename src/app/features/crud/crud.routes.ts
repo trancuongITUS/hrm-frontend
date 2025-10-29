@@ -5,4 +5,3 @@ export default [
     { path: '', component: Crud },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;
-
