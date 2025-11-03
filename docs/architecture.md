@@ -119,9 +119,16 @@ hrm-frontend/
 │   │   │   │   ├── api-response.model.ts # Standard API response types
 │   │   │   │   └── index.ts
 │   │   │   │
+│   │   │   ├── errors/              # Error handling layer
+│   │   │   │   ├── error.model.ts        # Error types and classes
+│   │   │   │   ├── error-logger.service.ts # Structured error logging
+│   │   │   │   ├── global-error-handler.ts # Global error handler
+│   │   │   │   └── index.ts
+│   │   │   │
 │   │   │   ├── services/
 │   │   │   │   ├── environment.service.ts
-│   │   │   │   ├── logger.service.ts
+│   │   │   │   ├── logger.service.ts      # Enhanced structured logging
+│   │   │   │   ├── notification.service.ts # Toast notification service
 │   │   │   │   ├── loading.service.ts
 │   │   │   │   └── index.ts
 │   │   │   │
@@ -340,9 +347,10 @@ The application follows a **three-tier architecture**:
   - **Config Layer:** Application configuration, API endpoints, constants
   - **HTTP Layer:** Base HTTP service, API response models, type-safe HTTP communication
   - **Auth Layer:** Authentication services, guards, interceptors
-  - **Services:** Core singleton services (logger, environment, etc.)
+  - **Error Layer:** Error handling, logging, and global error handler
+  - **Services:** Core singleton services (logger, notification, environment, etc.)
   - **Interceptors:** Global HTTP interceptors
-- **Examples:** AuthService, LoggerService, HTTP Interceptors, AppConfigService, BaseHttpService
+- **Examples:** AuthService, LoggerService, NotificationService, ErrorLoggerService, HTTP Interceptors, AppConfigService, BaseHttpService
 
 ### 2. **Shared Layer** (`src/app/shared`)
 - **Purpose:** Reusable components, directives, pipes, and utilities
@@ -1278,6 +1286,459 @@ this.dataService.getItems()
 
 ---
 
+## Error Handling and Notification System
+
+### Overview
+
+The application implements a comprehensive error handling and notification system that provides:
+
+- **Global Error Handler:** Catches all unhandled JavaScript errors
+- **HTTP Error Interceptor:** Handles API errors with user-friendly notifications
+- **Structured Error Logging:** Detailed error logging with context
+- **Toast Notifications:** User-friendly feedback using PrimeNG Toast
+- **Type-Safe Error Models:** Strongly typed error classes for different error scenarios
+
+### Error Layer Architecture
+
+The error handling system (`src/app/core/errors`) consists of:
+
+#### 1. **Error Models (`error.model.ts`)**
+
+Defines typed error classes and severity levels:
+
+```typescript
+// Error severity levels
+enum ErrorSeverity {
+    LOW = 'low',
+    MEDIUM = 'medium',
+    HIGH = 'high',
+    CRITICAL = 'critical'
+}
+
+// Error types
+enum ErrorType {
+    NETWORK = 'network',
+    HTTP = 'http',
+    VALIDATION = 'validation',
+    AUTHENTICATION = 'authentication',
+    AUTHORIZATION = 'authorization',
+    BUSINESS = 'business',
+    RUNTIME = 'runtime',
+    UNKNOWN = 'unknown'
+}
+
+// Base error class
+class ApplicationError extends Error {
+    readonly type: ErrorType;
+    readonly severity: ErrorSeverity;
+    readonly timestamp: Date;
+    readonly code?: string;
+    readonly context?: Record<string, unknown>;
+}
+
+// Specialized error classes
+class HttpError extends ApplicationError { }
+class ValidationError extends ApplicationError { }
+```
+
+**Features:**
+- Type-safe error classification
+- Severity-based error handling
+- Contextual error information
+- Serializable error objects
+
+#### 2. **Error Logger Service (`error-logger.service.ts`)**
+
+Provides structured error logging with server integration support:
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class ErrorLoggerService {
+    // Log various error types
+    logError(error: Error | ApplicationError): void
+    logHttpError(error: unknown, statusCode: number, url: string, method: string): void
+    logValidationError(message: string, field?: string, context?: Record<string, unknown>): void
+    logNetworkError(message: string, context?: Record<string, unknown>): void
+    logBusinessError(message: string, context?: Record<string, unknown>): void
+    logAuthenticationError(message: string, context?: Record<string, unknown>): void
+    logAuthorizationError(message: string, context?: Record<string, unknown>): void
+}
+```
+
+**Features:**
+- Structured error logging with context
+- Environment-aware logging (production vs. development)
+- Severity-based console logging
+- Ready for remote logging integration (Sentry, LogRocket, etc.)
+- Automatic stack trace inclusion in development
+
+#### 3. **Global Error Handler (`global-error-handler.ts`)**
+
+Catches all unhandled errors in the application:
+
+```typescript
+@Injectable()
+export class GlobalErrorHandler implements ErrorHandler {
+    handleError(error: Error | ApplicationError | unknown): void {
+        // Normalizes errors
+        // Logs with detailed information
+        // Shows user notifications
+        // Handles critical errors
+        // Prevents application crashes
+    }
+}
+```
+
+**Features:**
+- Catches all unhandled JavaScript errors
+- Categorizes errors automatically
+- Shows user-friendly notifications
+- Logs errors with full context
+- Handles critical errors with recovery options
+- Re-throws errors in development for debugging
+
+**Registration:**
+```typescript
+// app.config.ts
+export const appConfig: ApplicationConfig = {
+    providers: [
+        { provide: ErrorHandler, useClass: GlobalErrorHandler },
+        // ... other providers
+    ]
+};
+```
+
+### Notification System
+
+#### **Notification Service (`notification.service.ts`)**
+
+Provides a simplified, type-safe API for showing toast notifications:
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class NotificationService {
+    // Basic notifications
+    showSuccess(message: string, title?: string, options?: NotificationOptions): void
+    showInfo(message: string, title?: string, options?: NotificationOptions): void
+    showWarning(message: string, title?: string, options?: NotificationOptions): void
+    showError(message: string, title?: string, options?: NotificationOptions): void
+    
+    // Specialized notifications
+    showValidationErrors(errors: Record<string, string[]> | string[], title?: string): void
+    showOperationSuccess(operation: 'created' | 'updated' | 'deleted' | 'saved', entity?: string): void
+    showOperationError(operation: 'create' | 'update' | 'delete' | 'save' | 'load', entity?: string): void
+    showNetworkError(message?: string): void
+    showAuthenticationError(message?: string): void
+    showAuthorizationError(message?: string): void
+    
+    // Advanced features
+    showLoading(message?: string, title?: string): () => void
+    showMultiple(notifications: Notification[]): void
+    clearAll(): void
+    clearByKey(key: string): void
+}
+```
+
+**Features:**
+- Type-safe notification API
+- Built-in message templates for common scenarios
+- Configurable duration and behavior
+- Support for sticky notifications
+- Loading indicators with cleanup
+- Multiple notification management
+
+**Setup:**
+
+1. **Register MessageService** in `app.config.ts`:
+```typescript
+export const appConfig: ApplicationConfig = {
+    providers: [
+        MessageService,
+        // ... other providers
+    ]
+};
+```
+
+2. **Add Toast component** to `app.component.ts`:
+```typescript
+@Component({
+    selector: 'app-root',
+    imports: [RouterModule, Toast],
+    template: `
+        <p-toast position="top-right" />
+        <router-outlet />
+    `
+})
+export class AppComponent {}
+```
+
+### Enhanced Logger Service
+
+The logger service has been enhanced with structured logging capabilities:
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class LoggerService {
+    // Standard logging
+    debug(message: string, ...args: unknown[]): void
+    info(message: string, ...args: unknown[]): void
+    warn(message: string, ...args: unknown[]): void
+    error(message: string, ...args: unknown[]): void
+    
+    // Structured logging with context
+    withContext(context: LogContext): LoggerService
+    
+    // Grouping and organization
+    group(label: string, callback: () => void): void
+    groupCollapsed(label: string, callback: () => void): void
+    table(data: unknown, columns?: string[]): void
+    
+    // Performance measurement
+    time(label: string): () => void
+    measureAsync<T>(label: string, operation: () => Promise<T>): Promise<T>
+    measure<T>(label: string, operation: () => T): T
+    
+    // Debugging
+    trace(message: string, ...args: unknown[]): void
+    clear(): void
+}
+```
+
+**Usage Examples:**
+
+```typescript
+// Simple logging
+this.logger.info('User logged in');
+
+// Logging with context
+this.logger
+    .withContext({ component: 'AuthComponent', action: 'login' })
+    .info('Login attempt', { email: user.email });
+
+// Performance measurement
+await this.logger.measureAsync('Fetch Users', async () => {
+    return await this.userService.getUsers();
+});
+
+// Grouped logs
+this.logger.group('API Call', () => {
+    this.logger.info('Request sent');
+    this.logger.info('Response received');
+});
+```
+
+### HTTP Error Handling Integration
+
+The error interceptor integrates with the notification system:
+
+```typescript
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+    const notificationService = inject(NotificationService);
+    const errorLogger = inject(ErrorLoggerService);
+    
+    return next(req).pipe(
+        catchError((error: HttpErrorResponse) => {
+            // Log error
+            errorLogger.logHttpError(error, error.status, req.url, req.method);
+            
+            // Show appropriate notification
+            if (error.status === 401) {
+                notificationService.showAuthenticationError();
+            } else if (error.status === 403) {
+                notificationService.showAuthorizationError();
+            } else if (error.status === 422) {
+                notificationService.showValidationErrors(error.error.errors);
+            } else if (error.status >= 500) {
+                notificationService.showError('Server error occurred');
+            }
+            
+            return throwError(() => error);
+        })
+    );
+};
+```
+
+### Best Practices
+
+#### 1. **Use Appropriate Error Types**
+
+```typescript
+// For HTTP errors
+throw new HttpError('Not found', 404, url, 'GET');
+
+// For validation errors
+throw new ValidationError('Invalid email', { field: 'email' });
+
+// For business logic errors
+this.errorLogger.logBusinessError('Insufficient balance', { 
+    userId: user.id, 
+    balance: user.balance 
+});
+```
+
+#### 2. **Provide User-Friendly Messages**
+
+```typescript
+// Bad: Technical message
+this.notificationService.showError('TypeError: Cannot read property x of undefined');
+
+// Good: User-friendly message
+this.notificationService.showError('Unable to load data. Please try again.');
+```
+
+#### 3. **Log with Context**
+
+```typescript
+this.logger
+    .withContext({
+        component: 'EmployeeService',
+        action: 'createEmployee',
+        userId: currentUser.id
+    })
+    .error('Failed to create employee', { error, employeeData });
+```
+
+#### 4. **Handle Errors Gracefully in Components**
+
+```typescript
+export class EmployeeListComponent {
+    private notificationService = inject(NotificationService);
+    
+    loadEmployees(): void {
+        this.employeeService.getEmployees()
+            .subscribe({
+                next: (employees) => {
+                    this.employees = employees;
+                },
+                error: (error) => {
+                    // Error already logged by interceptor
+                    // Optionally handle specific error cases
+                    this.employees = [];
+                }
+            });
+    }
+    
+    deleteEmployee(id: string): void {
+        this.employeeService.delete(id)
+            .subscribe({
+                next: () => {
+                    this.notificationService.showOperationSuccess('deleted', 'Employee');
+                    this.loadEmployees();
+                },
+                error: () => {
+                    // Error notification already shown by interceptor
+                }
+            });
+    }
+}
+```
+
+#### 5. **Use Loading Indicators**
+
+```typescript
+async performLongOperation(): Promise<void> {
+    const clearLoading = this.notificationService.showLoading('Processing...');
+    
+    try {
+        await this.service.performOperation();
+        this.notificationService.showSuccess('Operation completed');
+    } catch (error) {
+        // Error handling
+    } finally {
+        clearLoading();
+    }
+}
+```
+
+#### 6. **Validation Error Handling**
+
+```typescript
+submitForm(): void {
+    this.formService.submit(this.formData)
+        .subscribe({
+            next: () => {
+                this.notificationService.showOperationSuccess('saved', 'Form');
+            },
+            error: (error) => {
+                if (error.status === 422 && error.error.errors) {
+                    this.notificationService.showValidationErrors(error.error.errors);
+                }
+            }
+        });
+}
+```
+
+### Error Handling Flow
+
+```
+1. Error Occurs
+   ↓
+2. HTTP Error Interceptor (for API errors)
+   - Logs error via ErrorLoggerService
+   - Shows appropriate notification
+   - Navigates if needed (401, 403)
+   ↓
+3. Global Error Handler (for unhandled errors)
+   - Normalizes error
+   - Logs via ErrorLoggerService
+   - Shows user notification
+   - Handles critical errors
+   ↓
+4. ErrorLoggerService
+   - Logs to console (development)
+   - Sends to server (production, for critical errors)
+   - Includes context and stack trace
+   ↓
+5. NotificationService
+   - Shows toast notification
+   - User-friendly message
+   - Appropriate severity
+```
+
+### Configuration
+
+**Development Environment:**
+- All errors logged to console
+- Stack traces included
+- Errors re-thrown for debugging
+- Verbose logging
+
+**Production Environment:**
+- Only critical errors logged to server
+- User-friendly messages only
+- No stack traces exposed
+- Minimal logging
+
+### Testing Error Handling
+
+```typescript
+describe('ErrorHandling', () => {
+    it('should handle HTTP errors', () => {
+        const notificationService = TestBed.inject(NotificationService);
+        spyOn(notificationService, 'showError');
+        
+        // Trigger error
+        httpMock.expectOne('/api/data').error(new ErrorEvent('Network error'));
+        
+        expect(notificationService.showError).toHaveBeenCalledWith(
+            jasmine.stringContaining('Network')
+        );
+    });
+    
+    it('should log errors with context', () => {
+        const errorLogger = TestBed.inject(ErrorLoggerService);
+        spyOn(errorLogger, 'logError');
+        
+        const error = new ApplicationError('Test error', ErrorType.BUSINESS);
+        errorLogger.logError(error);
+        
+        expect(errorLogger.logError).toHaveBeenCalledWith(error);
+    });
+});
+```
+
+---
+
 ## Code Organization Best Practices
 
 ### 1. **Barrel Exports (Index Files)**
@@ -1636,13 +2097,26 @@ By following these guidelines, the HRM frontend application will remain maintain
 
 ---
 
-**Document Version:** 1.1  
+**Document Version:** 1.2  
 **Last Updated:** November 2025  
 **Maintained By:** Frontend Architecture Team
 
 ---
 
 ## Changelog
+
+### Version 1.2 (November 2025)
+- **Added Error Handling and Notification System**
+  - Comprehensive error handling layer with typed error models
+  - Global error handler for unhandled JavaScript errors
+  - Error logger service with structured logging
+  - Notification service with PrimeNG Toast integration
+  - Enhanced logger service with context and performance measurement
+  - Updated HTTP error interceptor with notification integration
+  - Added error handling best practices and examples
+- Updated project structure to include errors sub-layer in core
+- Enhanced core services with notification.service.ts
+- Added setup instructions for Toast component
 
 ### Version 1.1 (November 2025)
 - Added Configuration Layer section with AppConfigService, API config, and constants
