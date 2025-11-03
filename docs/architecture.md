@@ -9,21 +9,23 @@
 
 ## Table of Contents
 
-1. [Overview](#overview) (Lines 30-40)
-2. [Architectural Principles](#architectural-principles) (Lines 43-68)
-3. [Project Structure](#project-structure) (Lines 71-311)
-4. [Layer Architecture](#layer-architecture) (Lines 315-359)
-5. [Folder Organization](#folder-organization) (Lines 362-399)
-6. [Naming Conventions](#naming-conventions) (Lines 403-447)
-7. [Component Architecture](#component-architecture) (Lines 450-574)
-8. [State Management](#state-management) (Lines 577-667)
-9. [Routing Strategy](#routing-strategy) (Lines 670-776)
-10. [Data Flow Patterns](#data-flow-patterns) (Lines 779-854)
-11. [Code Organization Best Practices](#code-organization-best-practices) (Lines 857-926)
-12. [Testing Strategy](#testing-strategy) (Lines 929-1018)
-13. [Performance Optimization](#performance-optimization) (Lines 1021-1084)
-14. [Security Considerations](#security-considerations) (Lines 1087-1155)
-15. [Scalability Guidelines](#scalability-guidelines) (Lines 1158-1198)
+1. [Overview](#overview)
+2. [Architectural Principles](#architectural-principles)
+3. [Project Structure](#project-structure)
+4. [Layer Architecture](#layer-architecture)
+5. [Folder Organization](#folder-organization)
+6. [Naming Conventions](#naming-conventions)
+7. [Component Architecture](#component-architecture)
+8. [State Management](#state-management)
+9. [Routing Strategy](#routing-strategy)
+10. [Data Flow Patterns](#data-flow-patterns)
+11. [Configuration Layer](#configuration-layer)
+12. [HTTP Communication Layer](#http-communication-layer)
+13. [Code Organization Best Practices](#code-organization-best-practices)
+14. [Testing Strategy](#testing-strategy)
+15. [Performance Optimization](#performance-optimization)
+16. [Security Considerations](#security-considerations)
+17. [Scalability Guidelines](#scalability-guidelines)
 
 ---
 
@@ -88,34 +90,46 @@ hrm-frontend/
 │   │   │   ├── auth/
 │   │   │   │   ├── guards/
 │   │   │   │   │   ├── auth.guard.ts
-│   │   │   │   │   └── role.guard.ts
+│   │   │   │   │   ├── role.guard.ts
+│   │   │   │   │   └── index.ts
 │   │   │   │   ├── interceptors/
 │   │   │   │   │   ├── auth.interceptor.ts
 │   │   │   │   │   ├── error.interceptor.ts
-│   │   │   │   │   └── loading.interceptor.ts
+│   │   │   │   │   ├── loading.interceptor.ts
+│   │   │   │   │   └── index.ts
 │   │   │   │   ├── services/
 │   │   │   │   │   ├── auth.service.ts
 │   │   │   │   │   ├── token.service.ts
-│   │   │   │   │   └── session.service.ts
-│   │   │   │   └── models/
-│   │   │   │       ├── user.model.ts
-│   │   │   │       └── auth.model.ts
+│   │   │   │   │   ├── session.service.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── models/
+│   │   │   │   │   ├── user.model.ts
+│   │   │   │   │   ├── auth.model.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── index.ts
 │   │   │   │
-│   │   │   ├── config/
-│   │   │   │   ├── app.config.ts
-│   │   │   │   ├── environment.config.ts
-│   │   │   │   └── api.config.ts
+│   │   │   ├── config/              # Application configuration layer
+│   │   │   │   ├── api.config.ts       # API endpoints configuration
+│   │   │   │   ├── app-config.service.ts # Runtime config service
+│   │   │   │   ├── constants.ts        # App-wide constants
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── http/                # HTTP communication layer
+│   │   │   │   ├── base-http.service.ts  # Base HTTP service wrapper
+│   │   │   │   ├── api-response.model.ts # Standard API response types
+│   │   │   │   └── index.ts
 │   │   │   │
 │   │   │   ├── services/
+│   │   │   │   ├── environment.service.ts
 │   │   │   │   ├── logger.service.ts
-│   │   │   │   ├── notification.service.ts
-│   │   │   │   ├── storage.service.ts
-│   │   │   │   └── error-handler.service.ts
+│   │   │   │   ├── loading.service.ts
+│   │   │   │   └── index.ts
 │   │   │   │
-│   │   │   └── utils/
-│   │   │       ├── date.util.ts
-│   │   │       ├── validation.util.ts
-│   │   │       └── string.util.ts
+│   │   │   ├── interceptors/
+│   │   │   │   ├── api.interceptor.ts
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── shared/                 # Shared components, directives, pipes
 │   │   │   ├── components/
@@ -322,7 +336,13 @@ The application follows a **three-tier architecture**:
   - Services provided in root (`providedIn: 'root'`)
   - Should be imported/used only once
   - No UI components
-- **Examples:** AuthService, LoggerService, HTTP Interceptors
+- **Sub-layers:**
+  - **Config Layer:** Application configuration, API endpoints, constants
+  - **HTTP Layer:** Base HTTP service, API response models, type-safe HTTP communication
+  - **Auth Layer:** Authentication services, guards, interceptors
+  - **Services:** Core singleton services (logger, environment, etc.)
+  - **Interceptors:** Global HTTP interceptors
+- **Examples:** AuthService, LoggerService, HTTP Interceptors, AppConfigService, BaseHttpService
 
 ### 2. **Shared Layer** (`src/app/shared`)
 - **Purpose:** Reusable components, directives, pipes, and utilities
@@ -854,6 +874,410 @@ export interface PaginatedResponse<T> {
 
 ---
 
+## Configuration Layer
+
+### Overview
+
+The configuration layer (`src/app/core/config`) provides centralized management of application settings, API endpoints, and constants.
+
+### Components
+
+#### 1. **API Configuration (`api.config.ts`)**
+
+Defines all API endpoints in a type-safe, organized structure.
+
+```typescript
+export interface ApiEndpoints {
+  readonly auth: {
+    readonly login: string;
+    readonly logout: string;
+    readonly register: string;
+    readonly refreshToken: string;
+    // ... more auth endpoints
+  };
+  // Add more feature-specific endpoints as needed
+}
+```
+
+**Features:**
+- Type-safe endpoint definitions
+- Factory functions for dynamic URL generation
+- Centralized API versioning
+- Easy to maintain and extend
+
+**Usage:**
+```typescript
+export class AuthService {
+  private config = inject(AppConfigService);
+  
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
+    const url = this.config.api.endpoints.auth.login;
+    return this.baseHttp.post<AuthResponse>(url, credentials);
+  }
+}
+```
+
+#### 2. **App Config Service (`app-config.service.ts`)**
+
+Runtime configuration service providing unified access to all application settings.
+
+**Features:**
+- Environment-based configuration
+- API endpoints access
+- Application constants
+- Feature flag checking
+- Type-safe configuration retrieval
+
+**Usage:**
+```typescript
+export class MyComponent {
+  private appConfig = inject(AppConfigService);
+  
+  ngOnInit(): void {
+    const loginUrl = this.appConfig.api.endpoints.auth.login;
+    const timeout = this.appConfig.apiTimeout;
+    const pageSize = this.appConfig.defaultPageSize;
+    
+    if (this.appConfig.isFeatureEnabled('analytics')) {
+      // Enable analytics
+    }
+  }
+}
+```
+
+#### 3. **Constants (`constants.ts`)**
+
+Application-wide constants organized by domain.
+
+**Categories:**
+- API configuration (timeout, retry, pagination)
+- Storage keys
+- Date formats
+- HTTP status codes
+- Authentication config
+- Validation patterns
+- UI configuration
+- File upload settings
+- Application routes
+- User roles and statuses
+
+**Usage:**
+```typescript
+import { STORAGE_KEYS, VALIDATION, USER_ROLES } from '@core/config';
+
+// Store token
+localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+
+// Validate email
+const isValid = VALIDATION.EMAIL_PATTERN.test(email);
+
+// Check role
+if (user.role === USER_ROLES.ADMIN) {
+  // Admin logic
+}
+```
+
+### Best Practices
+
+1. **Never hardcode URLs or magic values**
+   ```typescript
+   // Bad
+   const url = 'http://localhost:3000/api/v1/employees';
+   
+   // Good
+   const url = this.appConfig.api.endpoints.employees.base;
+   ```
+
+2. **Use type-safe constants**
+   ```typescript
+   // Bad
+   if (status === 200) { }
+   
+   // Good
+   import { HTTP_STATUS } from '@core/config';
+   if (status === HTTP_STATUS.OK) { }
+   ```
+
+3. **Leverage factory functions for dynamic URLs**
+   ```typescript
+   const employeeUrl = this.appConfig.getEndpoint('employees.byId', employeeId);
+   ```
+
+---
+
+## HTTP Communication Layer
+
+### Overview
+
+The HTTP layer (`src/app/core/http`) provides a robust, type-safe wrapper around Angular's HttpClient with built-in error handling, retry logic, and response transformation.
+
+### Components
+
+#### 1. **Base HTTP Service (`base-http.service.ts`)**
+
+A comprehensive HTTP client wrapper with enterprise features.
+
+**Features:**
+- Automatic timeout handling
+- Retry logic for failed requests (configurable)
+- Type-safe request/response handling
+- Consistent error handling
+- Request/response logging in development
+- Pagination support
+- Search and filter capabilities
+
+**Available Methods:**
+
+```typescript
+export class BaseHttpService {
+  // Standard CRUD operations
+  get<T>(url: string, options?: HttpRequestOptions): Observable<T>
+  post<T>(url: string, body: any, options?: HttpRequestOptions): Observable<T>
+  put<T>(url: string, body: any, options?: HttpRequestOptions): Observable<T>
+  patch<T>(url: string, body: any, options?: HttpRequestOptions): Observable<T>
+  delete(url: string, options?: HttpRequestOptions): Observable<void>
+  
+  // Specialized methods
+  getList<T>(url: string, options?: HttpRequestOptions): Observable<T[]>
+  getPaginated<T>(url: string, params?: PaginationParams, options?: HttpRequestOptions): Observable<PaginatedResponse<T>>
+  search<T>(url: string, params?: SearchParams, options?: HttpRequestOptions): Observable<PaginatedResponse<T>>
+  deleteWithResponse<T>(url: string, options?: HttpRequestOptions): Observable<T>
+}
+```
+
+**Usage Example:**
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class DataService {
+  private baseHttp = inject(BaseHttpService);
+  private config = inject(AppConfigService);
+  
+  // Simple GET request
+  getItems<T>(): Observable<T[]> {
+    return this.baseHttp.getList<T>('items');
+  }
+  
+  // GET with pagination
+  getItemsPaginated<T>(page: number, pageSize: number): Observable<PaginatedResponse<T>> {
+    return this.baseHttp.getPaginated<T>(
+      'items',
+      { page, pageSize, sortBy: 'name', sortOrder: 'asc' }
+    );
+  }
+  
+  // Search with filters
+  searchItems<T>(searchTerm: string, filters: any): Observable<PaginatedResponse<T>> {
+    return this.baseHttp.search<T>(
+      'items/search',
+      { search: searchTerm, filters, page: 1, pageSize: 20 }
+    );
+  }
+  
+  // POST request
+  createItem<T>(data: any): Observable<T> {
+    return this.baseHttp.post<T>('items', data);
+  }
+  
+  // PUT request
+  updateItem<T>(id: string, data: any): Observable<T> {
+    return this.baseHttp.put<T>(`items/${id}`, data);
+  }
+  
+  // PATCH request (partial update)
+  patchItem<T>(id: string, changes: Partial<T>): Observable<T> {
+    return this.baseHttp.patch<T>(`items/${id}`, changes);
+  }
+  
+  // DELETE request
+  deleteItem(id: string): Observable<void> {
+    return this.baseHttp.delete(`items/${id}`);
+  }
+}
+```
+
+#### 2. **API Response Models (`api-response.model.ts`)**
+
+Standardized TypeScript interfaces for API responses.
+
+**Response Types:**
+
+```typescript
+// Standard response wrapper
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  timestamp?: string;
+}
+
+// Error response
+interface ApiErrorResponse {
+  success: false;
+  error: ApiError;
+  errors?: ApiError[];
+  message: string;
+  statusCode: number;
+  timestamp?: string;
+  path?: string;
+}
+
+// Paginated response
+interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: PaginationMeta;
+  message?: string;
+}
+
+// List response (non-paginated)
+interface ListResponse<T> {
+  success: boolean;
+  data: T[];
+  count: number;
+  message?: string;
+}
+
+// Batch operation response
+interface BatchOperationResponse {
+  success: boolean;
+  data: {
+    successCount: number;
+    failureCount: number;
+    totalCount: number;
+    errors?: Array<{ itemId: string; error: string; }>;
+  };
+  message?: string;
+}
+```
+
+**Type Guards:**
+
+```typescript
+// Check if response is an error
+if (isApiErrorResponse(response)) {
+  console.error(response.error.message);
+}
+
+// Check if response is paginated
+if (isPaginatedResponse(response)) {
+  console.log(`Total pages: ${response.pagination.totalPages}`);
+}
+
+// Check if error is validation error
+if (isValidationErrorResponse(errorResponse)) {
+  errorResponse.errors.forEach(err => {
+    console.log(`${err.field}: ${err.message}`);
+  });
+}
+```
+
+### URL Handling
+
+The `BaseHttpService` intelligently handles URL construction:
+
+1. **Relative URLs:** Automatically prepends base URL and version
+   ```typescript
+   // Input: 'items'
+   // Output: 'http://localhost:3000/api/v1/items'
+   this.baseHttp.get<Item[]>('items');
+   ```
+
+2. **Absolute URLs:** Used as-is
+   ```typescript
+   // Used directly without modification
+   this.baseHttp.get<Data>('https://external-api.com/data');
+   ```
+
+3. **Using Config Service (recommended for auth endpoints):**
+   ```typescript
+   // Recommended approach for configured endpoints
+   this.baseHttp.post<AuthResponse>(
+     this.config.api.endpoints.auth.login,
+     credentials
+   );
+   ```
+
+### Error Handling
+
+The HTTP layer provides comprehensive error handling:
+
+1. **Automatic Retry:** Failed requests are retried automatically (5xx errors and network issues)
+2. **Timeout Handling:** Requests timeout after configured duration (default: 30s)
+3. **Consistent Error Format:** All errors are transformed to `ApiErrorResponse`
+4. **Development Logging:** Detailed request/response logging in development mode
+
+```typescript
+this.dataService.getItems()
+  .subscribe({
+    next: (items) => {
+      // Handle success
+    },
+    error: (error: ApiErrorResponse) => {
+      // Error is always in consistent format
+      console.error(error.message);
+      console.error(error.statusCode);
+    }
+  });
+```
+
+### Best Practices
+
+1. **Always use BaseHttpService instead of HttpClient directly**
+   ```typescript
+   // Bad
+   private http = inject(HttpClient);
+   
+   // Good
+   private baseHttp = inject(BaseHttpService);
+   ```
+
+2. **Use type parameters for type safety**
+   ```typescript
+   // Bad
+   getEmployees(): Observable<any>
+   
+   // Good
+   getEmployees(): Observable<Employee[]>
+   ```
+
+3. **Leverage specialized methods**
+   ```typescript
+   // For paginated data
+   this.baseHttp.getPaginated<Item>(url, { page: 1, pageSize: 20 });
+   
+   // For simple lists
+   this.baseHttp.getList<Item>(url);
+   ```
+
+4. **Use AppConfigService for configured endpoints**
+   ```typescript
+   private config = inject(AppConfigService);
+   private baseHttp = inject(BaseHttpService);
+   
+   login(credentials: LoginCredentials): Observable<AuthResponse> {
+     return this.baseHttp.post<AuthResponse>(
+       this.config.api.endpoints.auth.login,
+       credentials
+     );
+   }
+   ```
+
+5. **Handle errors gracefully**
+   ```typescript
+   this.baseHttp.get<Item>(url).pipe(
+     catchError((error: ApiErrorResponse) => {
+       // Handle specific error cases
+       if (error.statusCode === HTTP_STATUS.NOT_FOUND) {
+         this.router.navigate(['/not-found']);
+       }
+       return throwError(() => error);
+     })
+   );
+   ```
+
+---
+
 ## Code Organization Best Practices
 
 ### 1. **Barrel Exports (Index Files)**
@@ -1212,7 +1636,19 @@ By following these guidelines, the HRM frontend application will remain maintain
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** October 2025  
+**Document Version:** 1.1  
+**Last Updated:** November 2025  
 **Maintained By:** Frontend Architecture Team
+
+---
+
+## Changelog
+
+### Version 1.1 (November 2025)
+- Added Configuration Layer section with AppConfigService, API config, and constants
+- Added HTTP Communication Layer section with BaseHttpService and API response models
+- Updated project structure to include config and http sub-layers in core
+- Enhanced Layer Architecture section with sub-layer descriptions
+- Added comprehensive examples and best practices for config and HTTP layers
+- Included auth-related endpoints configuration (ready to extend with business features)
 
