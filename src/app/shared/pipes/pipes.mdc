@@ -1,0 +1,306 @@
+# Shared Pipes
+
+A collection of reusable Angular pipes for common data transformation and formatting needs.
+
+---
+
+## Utility Pipes
+
+### Safe Pipe
+**Name:** `safe`  
+**Purpose:** Sanitize and bypass Angular's security for trusted content
+
+**Usage:**
+```html
+<div [innerHTML]="htmlContent | safe: 'html'"></div>
+<iframe [src]="videoUrl | safe: 'resourceUrl'"></iframe>
+<a [href]="dynamicUrl | safe: 'url'">Link</a>
+```
+
+**Parameters:**
+- `type: 'html' | 'style' | 'script' | 'url' | 'resourceUrl'` - Security context type
+
+---
+
+### Filter Pipe
+**Name:** `filter`  
+**Purpose:** Filter array items by search term or predicate function
+
+**Usage:**
+```html
+<div *ngFor="let user of users | filter: searchTerm: 'name'">
+  {{ user.name }}
+</div>
+<div *ngFor="let item of items | filter: filterFn">{{ item }}</div>
+```
+
+**Parameters:**
+- `searchTerm: string | function` - Search term or predicate function
+- `property?: string` - Optional property to search in
+
+**Note:** Impure pipe - consider filtering in component for large datasets
+
+---
+
+### Order By Pipe
+**Name:** `orderBy`  
+**Purpose:** Sort array by property or multiple properties
+
+**Usage:**
+```html
+<div *ngFor="let user of users | orderBy: 'name'">{{ user.name }}</div>
+<div *ngFor="let user of users | orderBy: 'age': 'desc'">{{ user.age }}</div>
+<div *ngFor="let user of users | orderBy: ['dept', 'name']">...</div>
+```
+
+**Parameters:**
+- `property: string | string[]` - Property name(s) to sort by
+- `order: 'asc' | 'desc'` - Sort direction (default: 'asc')
+
+**Note:** Impure pipe - consider sorting in component for large datasets
+
+---
+
+### Group By Pipe
+**Name:** `groupBy`  
+**Purpose:** Group array items by a property
+
+**Usage:**
+```html
+<div *ngFor="let group of users | groupBy: 'department'">
+  <h3>{{ group.key }}</h3>
+  <div *ngFor="let user of group.value">{{ user.name }}</div>
+</div>
+```
+
+**Parameters:**
+- `property: string` - Property name to group by
+
+**Returns:** `Array<{ key: string; value: T[] }>`
+
+**Note:** Impure pipe - consider grouping in component for large datasets
+
+---
+
+## Date/Time Pipes
+
+### Time Ago Pipe
+**Name:** `timeAgo`  
+**Purpose:** Convert date to human-readable relative time
+
+**Usage:**
+```html
+<span>{{ post.createdAt | timeAgo }}</span>
+<!-- Output: "2 hours ago", "3 days ago", "just now" -->
+```
+
+**Input:** `Date | string | number`
+
+---
+
+### Date Range Pipe
+**Name:** `dateRange`  
+**Purpose:** Format date ranges with smart single-date detection
+
+**Usage:**
+```html
+<span>{{ event | dateRange }}</span>
+<!-- Output: "Jan 15, 2024 - Jan 20, 2024" -->
+<span>{{ event | dateRange: 'short' }}</span>
+<!-- Output: "1/15/24 - 1/20/24" -->
+```
+
+**Parameters:**
+- `format: 'short' | 'medium' | 'long'` - Date format (default: 'medium')
+
+**Input:** `{ startDate: Date | string; endDate: Date | string }`
+
+---
+
+## Text Formatting Pipes
+
+### Truncate Pipe
+**Name:** `truncate`  
+**Purpose:** Truncate text to specified length with ellipsis
+
+**Usage:**
+```html
+<p>{{ longText | truncate: 50 }}</p>
+<p>{{ description | truncate: 100: '...' }}</p>
+<p>{{ title | truncate: 30: '': true }}</p> <!-- Word boundary -->
+```
+
+**Parameters:**
+- `limit: number` - Maximum character length (default: 50)
+- `ellipsis: string` - Ellipsis text (default: '...')
+- `wordBoundary: boolean` - Truncate at word boundary (default: false)
+
+---
+
+### Highlight Pipe
+**Name:** `highlight`  
+**Purpose:** Highlight search terms in text with HTML markup
+
+**Usage:**
+```html
+<div [innerHTML]="text | highlight: searchTerm"></div>
+<div [innerHTML]="text | highlight: searchTerm: 'yellow'"></div>
+```
+
+**Parameters:**
+- `searchTerm: string` - Text to highlight
+- `highlightColor: string` - Background color (default: '#ffeb3b')
+
+**Note:** Returns `SafeHtml`, use with `[innerHTML]` binding
+
+---
+
+### Initials Pipe
+**Name:** `initials`  
+**Purpose:** Extract initials from a name
+
+**Usage:**
+```html
+<div class="avatar">{{ user.name | initials }}</div>
+<!-- Input: "John Doe" → Output: "JD" -->
+<div class="avatar">{{ user.name | initials: 3 }}</div>
+<!-- Input: "John Michael Doe" → Output: "JMD" -->
+```
+
+**Parameters:**
+- `maxInitials: number` - Maximum initials to extract (default: 2)
+
+---
+
+### Slug Pipe
+**Name:** `slug`  
+**Purpose:** Convert text to URL-friendly slug format
+
+**Usage:**
+```html
+<a [routerLink]="['/blog', post.title | slug]">{{ post.title }}</a>
+<!-- Input: "Hello World!" → Output: "hello-world" -->
+<!-- Input: "TypeScript & Angular" → Output: "typescript-angular" -->
+```
+
+---
+
+## Number/Currency Pipes
+
+### File Size Pipe
+**Name:** `fileSize`  
+**Purpose:** Convert bytes to human-readable file size
+
+**Usage:**
+```html
+<span>{{ file.size | fileSize }}</span>
+<!-- Input: 1024 → Output: "1 KB" -->
+<!-- Input: 1536000 → Output: "1.46 MB" -->
+<span>{{ file.size | fileSize: 0 }}</span>
+<!-- Input: 1536000 → Output: "1 MB" (no decimals) -->
+```
+
+**Parameters:**
+- `decimals: number` - Decimal places (default: 2)
+
+---
+
+### Percentage Pipe
+**Name:** `percentage`  
+**Purpose:** Format number as percentage with options
+
+**Usage:**
+```html
+<span>{{ 0.856 | percentage }}</span>
+<!-- Output: "85.6%" -->
+<span>{{ 0.856 | percentage: 0 }}</span>
+<!-- Output: "86%" -->
+<span>{{ progress | percentage: 1: true }}</span>
+<!-- Input already percentage: 85.6 → Output: "85.6%" -->
+```
+
+**Parameters:**
+- `decimals: number` - Decimal places (default: 1)
+- `isAlreadyPercentage: boolean` - Value already in % (default: false)
+
+---
+
+### Number Format Pipe
+**Name:** `numberFormat`  
+**Purpose:** Format numbers with thousands separators
+
+**Usage:**
+```html
+<span>{{ 1234567 | numberFormat }}</span>
+<!-- Output: "1,234,567" -->
+<span>{{ 1234567.89 | numberFormat: 2 }}</span>
+<!-- Output: "1,234,567.89" -->
+<span>{{ 1234567 | numberFormat: 0: 'k' }}</span>
+<!-- Output: "1,235k" -->
+```
+
+**Parameters:**
+- `decimals: number` - Decimal places (default: 0)
+- `suffix: '' | 'k' | 'M' | 'B'` - Numeric suffix (auto-detect if empty)
+
+---
+
+## Import & Usage
+
+### Import in Standalone Components
+```typescript
+import { TimeAgoPipe, TruncatePipe, FileSizePipe } from '@shared/pipes';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [TimeAgoPipe, TruncatePipe, FileSizePipe],
+  template: `
+    <p>{{ createdAt | timeAgo }}</p>
+    <p>{{ description | truncate: 100 }}</p>
+    <p>{{ fileSize | fileSize }}</p>
+  `
+})
+export class ExampleComponent {}
+```
+
+### Import All Pipes
+```typescript
+import * as Pipes from '@shared/pipes';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [
+    Pipes.TimeAgoPipe,
+    Pipes.TruncatePipe,
+    Pipes.FileSizePipe,
+    // ... other pipes
+  ],
+  template: `...`
+})
+export class ExampleComponent {}
+```
+
+---
+
+## Best Practices
+
+1. **Performance:** Impure pipes (filter, orderBy, groupBy) re-run on every change detection cycle. For large datasets, perform these operations in the component and use pure pipes.
+
+2. **Security:** The `safe` pipe bypasses Angular's security. Only use with trusted content.
+
+3. **Highlight Pipe:** Returns `SafeHtml`, always use with `[innerHTML]` binding, never with string interpolation.
+
+4. **Caching:** For expensive transformations, consider caching results in the component rather than relying on pipe execution.
+
+5. **Immutability:** When using impure pipes, ensure you create new array references when modifying data to trigger pipe updates.
+
+---
+
+## Notes
+
+- All pipes are standalone and can be imported individually
+- Pipes follow Angular best practices and strict TypeScript guidelines
+- Use pure pipes whenever possible for better performance
+- Consider component-level logic for complex transformations on large datasets
