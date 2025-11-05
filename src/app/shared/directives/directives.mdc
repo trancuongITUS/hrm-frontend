@@ -1,0 +1,294 @@
+# Shared Directives
+
+A collection of reusable Angular directives for common UI patterns and behaviors.
+
+---
+
+## Utility Directives
+
+### Click Outside Directive
+**Selector:** `appClickOutside`
+**Purpose:** Detect clicks outside of an element
+
+**Usage:**
+```html
+<div appClickOutside (clickOutside)="closeDropdown()">
+  Dropdown content
+</div>
+```
+
+---
+
+### Auto Focus Directive
+**Selector:** `appAutoFocus`
+**Purpose:** Automatically focus an element on initialization
+
+**Inputs:**
+- `appAutoFocus: boolean` - Enable/disable auto-focus (default: true)
+- `focusDelay: number` - Delay in milliseconds (default: 0)
+
+**Usage:**
+```html
+<input appAutoFocus />
+<input [appAutoFocus]="true" [focusDelay]="300" />
+```
+
+---
+
+### Debounce Click Directive
+**Selector:** `appDebounceClick`
+**Purpose:** Prevent multiple rapid clicks
+
+**Inputs:**
+- `debounceTime: number` - Debounce delay in milliseconds (default: 300)
+
+**Outputs:**
+- `debounceClick: EventEmitter<Event>` - Emits after debounce period
+
+**Usage:**
+```html
+<button appDebounceClick (debounceClick)="onSave()" [debounceTime]="500">
+  Save
+</button>
+```
+
+---
+
+## Permission & Role Directives
+
+### Has Permission Directive
+**Selector:** `appHasPermission`
+**Purpose:** Show/hide elements based on user permissions
+
+**Inputs:**
+- `appHasPermission: string | string[]` - Required permission(s)
+
+**Usage:**
+```html
+<button *appHasPermission="'employee.create'">Create Employee</button>
+<div *appHasPermission="['employee.edit', 'employee.delete']">Edit Options</div>
+```
+
+**Note:** Requires integration with your AuthService
+
+---
+
+### Has Role Directive
+**Selector:** `appHasRole`
+**Purpose:** Show/hide elements based on user roles
+
+**Inputs:**
+- `appHasRole: string | string[]` - Required role(s)
+
+**Usage:**
+```html
+<button *appHasRole="'admin'">Admin Panel</button>
+<div *appHasRole="['admin', 'manager']">Management Options</div>
+```
+
+**Note:** Requires integration with your AuthService
+
+---
+
+## UI Enhancement Directives
+
+### Tooltip Directive
+**Selector:** `appTooltip`
+**Purpose:** Display tooltips on hover
+
+**Inputs:**
+- `appTooltip: string` - Tooltip text
+- `tooltipPosition: 'top' | 'bottom' | 'left' | 'right'` - Position (default: 'top')
+- `tooltipDelay: number` - Show delay in milliseconds (default: 200)
+
+**Usage:**
+```html
+<button appTooltip="Click to save" [tooltipPosition]="'top'">Save</button>
+<span appTooltip="User information" [tooltipDelay]="500">Info</span>
+```
+
+**Note:** Requires CSS styles. Import `tooltip.directive.scss` in your global styles or add to angular.json:
+```json
+"styles": [
+  "src/app/shared/directives/tooltip.directive.scss"
+]
+```
+
+---
+
+### Highlight Directive
+**Selector:** `appHighlight`
+**Purpose:** Highlight elements on hover or permanently
+
+**Inputs:**
+- `highlightColor: string` - Highlight color (default: '#ffd54f')
+- `defaultColor: string` - Default background (default: 'transparent')
+- `permanent: boolean` - Always highlighted (default: false)
+
+**Usage:**
+```html
+<p appHighlight [highlightColor]="'yellow'">Hover to highlight</p>
+<span appHighlight [highlightColor]="'#ffeb3b'" [permanent]="true">Always highlighted</span>
+```
+
+---
+
+### Copy to Clipboard Directive
+**Selector:** `appCopyToClipboard`
+**Purpose:** Copy text to clipboard on click
+
+**Inputs:**
+- `copyText: string` - Text to copy
+- `copyFromElement: boolean` - Copy from element content (default: false)
+
+**Outputs:**
+- `copied: EventEmitter<string>` - Emitted on successful copy
+- `copyError: EventEmitter<Error>` - Emitted on error
+
+**Usage:**
+```html
+<button appCopyToClipboard [copyText]="'Hello World'" (copied)="onCopied()">
+  Copy Text
+</button>
+<input appCopyToClipboard [copyText]="userEmail" (copyError)="onError()" />
+```
+
+---
+
+## Form & Validation Directives
+
+### Trim Directive
+**Selector:** `appTrim`
+**Purpose:** Automatically trim whitespace from input values
+
+**Usage:**
+```html
+<input formControlName="username" appTrim />
+<input [(ngModel)]="email" appTrim />
+```
+
+---
+
+### Number Only Directive
+**Selector:** `appNumberOnly`
+**Purpose:** Allow only numeric input
+
+**Inputs:**
+- `allowDecimal: boolean` - Allow decimal points (default: false)
+- `allowNegative: boolean` - Allow negative numbers (default: false)
+- `maxDecimalPlaces: number` - Maximum decimal places (default: 2)
+
+**Usage:**
+```html
+<input appNumberOnly />
+<input appNumberOnly [allowDecimal]="true" [allowNegative]="true" />
+<input appNumberOnly [allowDecimal]="true" [maxDecimalPlaces]="3" />
+```
+
+---
+
+### Min Max Directive
+**Selector:** `appMinMax`
+**Purpose:** Enforce min/max constraints on numeric inputs
+
+**Inputs:**
+- `min: number` - Minimum value
+- `max: number` - Maximum value
+
+**Usage:**
+```html
+<input type="number" formControlName="age" appMinMax [min]="18" [max]="100" />
+<input type="number" [(ngModel)]="quantity" appMinMax [min]="1" [max]="999" />
+```
+
+---
+
+## Image & Lazy Loading Directives
+
+### Lazy Load Directive
+**Selector:** `appLazyLoad`
+**Purpose:** Lazy load images using Intersection Observer
+
+**Inputs:**
+- `src: string` - Image source URL
+- `placeholder: string` - Placeholder image (default: gray SVG)
+- `rootMargin: string` - Intersection observer root margin (default: '50px')
+- `threshold: number` - Intersection observer threshold (default: 0.01)
+
+**Outputs:**
+- `loaded: EventEmitter<void>` - Emitted when image loads
+- `error: EventEmitter<Error>` - Emitted on load error
+
+**Usage:**
+```html
+<img appLazyLoad [src]="imageUrl" [placeholder]="placeholderUrl" />
+<img appLazyLoad [src]="imageUrl" (loaded)="onImageLoaded()" />
+```
+
+---
+
+### Image Fallback Directive
+**Selector:** `appImageFallback`
+**Purpose:** Display fallback image on load error
+
+**Inputs:**
+- `fallbackSrc: string` - Fallback image URL (default: placeholder SVG)
+
+**Usage:**
+```html
+<img [src]="userAvatar" appImageFallback [fallbackSrc]="defaultAvatar" />
+<img [src]="productImage" appImageFallback />
+```
+
+---
+
+## Import & Usage
+
+### Import in Components
+```typescript
+import { AutoFocusDirective, TrimDirective, TooltipDirective } from '@shared/directives';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [AutoFocusDirective, TrimDirective, TooltipDirective],
+  template: `...`
+})
+export class ExampleComponent {}
+```
+
+### Import All Directives
+```typescript
+import * as Directives from '@shared/directives';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [
+    Directives.AutoFocusDirective,
+    Directives.TrimDirective,
+    // ... other directives
+  ],
+  template: `...`
+})
+export class ExampleComponent {}
+```
+
+---
+
+## Best Practices
+
+1. **Performance:** Use structural directives (`*appHasPermission`, `*appHasRole`) sparingly for better change detection
+2. **Accessibility:** Combine tooltip directive with ARIA attributes for better accessibility
+3. **Form Validation:** Use trim directive with reactive forms for consistent data
+4. **Image Loading:** Use lazy load directive for images below the fold to improve initial page load
+5. **Security:** Sanitize any user input before using copy-to-clipboard directive
+
+---
+
+## Notes
+
+- All directives are standalone and can be imported individually
+- Permission and role directives require integration with your authentication service
+- Tooltip directive needs custom CSS styles (see styles guide)
+- All directives follow Angular best practices and strict TypeScript guidelines
