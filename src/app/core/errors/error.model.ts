@@ -53,13 +53,13 @@ export interface HttpErrorInfo extends ErrorInfo {
 export interface ValidationErrorInfo extends ErrorInfo {
     readonly type: ErrorType.VALIDATION;
     readonly field?: string;
-    readonly validationErrors?: ValidationError[];
+    readonly validationErrors?: ValidationErrorDetail[];
 }
 
 /**
- * Single validation error.
+ * Single validation error detail.
  */
-export interface ValidationError {
+export interface ValidationErrorDetail {
     readonly field: string;
     readonly message: string;
     readonly code?: string;
@@ -98,9 +98,9 @@ export class ApplicationError extends Error {
         this.context = options?.context;
         this.originalError = options?.originalError;
 
-        // Maintains proper stack trace for where our error was thrown
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, ApplicationError);
+        // Maintains proper stack trace for where our error was thrown (Node.js specific)
+        if (typeof (Error as any).captureStackTrace === 'function') {
+            (Error as any).captureStackTrace(this, ApplicationError);
         }
     }
 
@@ -191,7 +191,7 @@ export class HttpError extends ApplicationError {
         return ErrorSeverity.LOW;
     }
 
-    toErrorInfo(): HttpErrorInfo {
+    override toErrorInfo(): HttpErrorInfo {
         return {
             ...super.toErrorInfo(),
             type: ErrorType.HTTP,
@@ -207,14 +207,14 @@ export class HttpError extends ApplicationError {
  * Validation error class for form and data validation errors.
  */
 export class ValidationError extends ApplicationError {
-    readonly field?: string;
-    readonly validationErrors?: ValidationError[];
+    field?: string;
+    validationErrors?: ValidationErrorDetail[];
 
     constructor(
         message: string,
         options?: {
             field?: string;
-            validationErrors?: ValidationError[];
+            validationErrors?: ValidationErrorDetail[];
             context?: Record<string, unknown>;
         }
     ) {
@@ -227,7 +227,7 @@ export class ValidationError extends ApplicationError {
         this.validationErrors = options?.validationErrors;
     }
 
-    toErrorInfo(): ValidationErrorInfo {
+    override toErrorInfo(): ValidationErrorInfo {
         return {
             ...super.toErrorInfo(),
             type: ErrorType.VALIDATION,

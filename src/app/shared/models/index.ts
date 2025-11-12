@@ -1,2 +1,4 @@
 // Shared models barrel exports
-// Add your shared model exports here
+export * from './component-types.model';
+export * from './form-types.model';
+export * from './table-types.model';

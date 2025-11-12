@@ -10,7 +10,8 @@ export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
-        canActivate: [authGuard], // Protect all routes under AppLayout
+        // TODO: Uncomment when API is connected
+        // canActivate: [authGuard], // Protect all routes under AppLayout
         children: [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/features/uikit/uikit.routes') },
