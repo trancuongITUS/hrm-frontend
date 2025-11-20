@@ -40,4 +40,3 @@ export interface UserProfile {
     avatar?: string;
     roles: UserRole[];
 }
-

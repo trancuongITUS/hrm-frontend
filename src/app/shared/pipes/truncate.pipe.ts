@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Truncates text to a specified length with ellipsis
- * 
+ *
  * @example
  * ```html
  * <p>{{ longText | truncate: 50 }}</p>
@@ -11,34 +11,28 @@ import { Pipe, PipeTransform } from '@angular/core';
  * ```
  */
 @Pipe({
-  name: 'truncate',
-  standalone: true
+    name: 'truncate',
+    standalone: true
 })
 export class TruncatePipe implements PipeTransform {
-  transform(
-    value: string,
-    limit: number = 50,
-    ellipsis: string = '...',
-    wordBoundary: boolean = false
-  ): string {
-    if (!value) {
-      return '';
+    transform(value: string, limit: number = 50, ellipsis: string = '...', wordBoundary: boolean = false): string {
+        if (!value) {
+            return '';
+        }
+
+        if (value.length <= limit) {
+            return value;
+        }
+
+        let truncated = value.substring(0, limit);
+
+        if (wordBoundary) {
+            const lastSpace = truncated.lastIndexOf(' ');
+            if (lastSpace > 0) {
+                truncated = truncated.substring(0, lastSpace);
+            }
+        }
+
+        return truncated.trim() + ellipsis;
     }
-
-    if (value.length <= limit) {
-      return value;
-    }
-
-    let truncated = value.substring(0, limit);
-
-    if (wordBoundary) {
-      const lastSpace = truncated.lastIndexOf(' ');
-      if (lastSpace > 0) {
-        truncated = truncated.substring(0, lastSpace);
-      }
-    }
-
-    return truncated.trim() + ellipsis;
-  }
 }
-

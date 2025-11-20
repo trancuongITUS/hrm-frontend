@@ -19,7 +19,7 @@ export class TokenService {
     setAccessToken(token: string): void {
         if (token) {
             localStorage.setItem(this.ACCESS_TOKEN_KEY, token);
-            
+
             // Calculate and store expiry time
             const payload = this.decodeToken(token);
             if (payload?.exp) {
@@ -86,7 +86,7 @@ export class TokenService {
         const currentTime = Date.now();
         const bufferTime = 30 * 1000; // 30 seconds buffer
 
-        return currentTime >= (expirationTime - bufferTime);
+        return currentTime >= expirationTime - bufferTime;
     }
 
     /**
@@ -172,4 +172,3 @@ export class TokenService {
         return Math.max(0, timeRemaining);
     }
 }
-

@@ -129,15 +129,10 @@ export class ApplicationError extends Error {
         }
 
         if (error instanceof Error) {
-            return new ApplicationError(
-                error.message,
-                ErrorType.RUNTIME,
-                ErrorSeverity.MEDIUM,
-                {
-                    originalError: error,
-                    context: { name: error.name }
-                }
-            );
+            return new ApplicationError(error.message, ErrorType.RUNTIME, ErrorSeverity.MEDIUM, {
+                originalError: error,
+                context: { name: error.name }
+            });
         }
 
         const message = typeof error === 'string' ? error : 'An unknown error occurred';
@@ -236,4 +231,3 @@ export class ValidationError extends ApplicationError {
         };
     }
 }
-

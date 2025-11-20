@@ -1,8 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 export interface GroupedItems<T> {
-  key: string;
-  value: T[];
+    key: string;
+    value: T[];
 }
 
 /**
@@ -20,29 +20,28 @@ export interface GroupedItems<T> {
  * Consider grouping in the component for better performance.
  */
 @Pipe({
-  name: 'groupBy',
-  standalone: true,
-  pure: false
+    name: 'groupBy',
+    standalone: true,
+    pure: false
 })
 export class GroupByPipe implements PipeTransform {
-  transform<T>(items: T[], property: keyof T): GroupedItems<T>[] {
-    if (!items || items.length === 0) {
-      return [];
+    transform<T>(items: T[], property: keyof T): GroupedItems<T>[] {
+        if (!items || items.length === 0) {
+            return [];
+        }
+
+        const grouped = new Map<string, T[]>();
+
+        items.forEach((item) => {
+            const key = String(item[property] ?? 'undefined');
+            const group = grouped.get(key) ?? [];
+            group.push(item);
+            grouped.set(key, group);
+        });
+
+        return Array.from(grouped.entries()).map(([key, value]) => ({
+            key,
+            value
+        }));
     }
-
-    const grouped = new Map<string, T[]>();
-
-    items.forEach((item) => {
-      const key = String(item[property] ?? 'undefined');
-      const group = grouped.get(key) ?? [];
-      group.push(item);
-      grouped.set(key, group);
-    });
-
-    return Array.from(grouped.entries()).map(([key, value]) => ({
-      key,
-      value
-    }));
-  }
 }
-

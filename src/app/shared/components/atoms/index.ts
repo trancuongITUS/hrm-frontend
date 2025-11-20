@@ -11,4 +11,3 @@ export * from './avatar';
 export * from './spinner';
 export * from './icon';
 export * from './divider';
-

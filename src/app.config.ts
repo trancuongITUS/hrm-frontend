@@ -16,10 +16,10 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(
             withFetch(),
             withInterceptors([
-                apiInterceptor,         // Must be first: adds base API URL
-                authInterceptor,        // Adds JWT token to requests
-                loadingInterceptor,     // Manages loading state
-                errorInterceptor        // Handles HTTP errors globally
+                apiInterceptor, // Must be first: adds base API URL
+                authInterceptor, // Adds JWT token to requests
+                loadingInterceptor, // Manages loading state
+                errorInterceptor // Handles HTTP errors globally
             ]),
             withXsrfConfiguration({
                 cookieName: 'XSRF-TOKEN',

@@ -48,26 +48,16 @@ export class ErrorLoggerService {
     /**
      * Logs an HTTP error with specific HTTP details.
      */
-    logHttpError(
-        error: unknown,
-        statusCode: number,
-        url: string,
-        method: string
-    ): void {
+    logHttpError(error: unknown, statusCode: number, url: string, method: string): void {
         const message = this.extractErrorMessage(error);
-        const appError = new ApplicationError(
-            message,
-            ErrorType.HTTP,
-            this.getSeverityFromStatus(statusCode),
-            {
-                statusCode,
-                context: {
-                    url,
-                    method,
-                    timestamp: new Date().toISOString()
-                }
+        const appError = new ApplicationError(message, ErrorType.HTTP, this.getSeverityFromStatus(statusCode), {
+            statusCode,
+            context: {
+                url,
+                method,
+                timestamp: new Date().toISOString()
             }
-        );
+        });
 
         this.logError(appError);
     }
@@ -75,22 +65,13 @@ export class ErrorLoggerService {
     /**
      * Logs a validation error with field-specific details.
      */
-    logValidationError(
-        message: string,
-        field?: string,
-        context?: Record<string, unknown>
-    ): void {
-        const appError = new ApplicationError(
-            message,
-            ErrorType.VALIDATION,
-            ErrorSeverity.LOW,
-            {
-                context: {
-                    field,
-                    ...context
-                }
+    logValidationError(message: string, field?: string, context?: Record<string, unknown>): void {
+        const appError = new ApplicationError(message, ErrorType.VALIDATION, ErrorSeverity.LOW, {
+            context: {
+                field,
+                ...context
             }
-        );
+        });
 
         this.logError(appError);
     }
@@ -99,12 +80,7 @@ export class ErrorLoggerService {
      * Logs a network error.
      */
     logNetworkError(message: string, context?: Record<string, unknown>): void {
-        const appError = new ApplicationError(
-            message,
-            ErrorType.NETWORK,
-            ErrorSeverity.HIGH,
-            { context }
-        );
+        const appError = new ApplicationError(message, ErrorType.NETWORK, ErrorSeverity.HIGH, { context });
 
         this.logError(appError);
     }
@@ -113,12 +89,7 @@ export class ErrorLoggerService {
      * Logs a business logic error.
      */
     logBusinessError(message: string, context?: Record<string, unknown>): void {
-        const appError = new ApplicationError(
-            message,
-            ErrorType.BUSINESS,
-            ErrorSeverity.MEDIUM,
-            { context }
-        );
+        const appError = new ApplicationError(message, ErrorType.BUSINESS, ErrorSeverity.MEDIUM, { context });
 
         this.logError(appError);
     }
@@ -127,12 +98,7 @@ export class ErrorLoggerService {
      * Logs an authentication error.
      */
     logAuthenticationError(message: string, context?: Record<string, unknown>): void {
-        const appError = new ApplicationError(
-            message,
-            ErrorType.AUTHENTICATION,
-            ErrorSeverity.HIGH,
-            { context }
-        );
+        const appError = new ApplicationError(message, ErrorType.AUTHENTICATION, ErrorSeverity.HIGH, { context });
 
         this.logError(appError);
     }
@@ -141,12 +107,7 @@ export class ErrorLoggerService {
      * Logs an authorization error.
      */
     logAuthorizationError(message: string, context?: Record<string, unknown>): void {
-        const appError = new ApplicationError(
-            message,
-            ErrorType.AUTHORIZATION,
-            ErrorSeverity.MEDIUM,
-            { context }
-        );
+        const appError = new ApplicationError(message, ErrorType.AUTHORIZATION, ErrorSeverity.MEDIUM, { context });
 
         this.logError(appError);
     }
@@ -212,12 +173,7 @@ export class ErrorLoggerService {
      * Formats the log message for console output.
      */
     private formatLogMessage(errorInfo: ErrorInfo): string {
-        const parts = [
-            `[${errorInfo.type.toUpperCase()}]`,
-            errorInfo.code ? `[${errorInfo.code}]` : '',
-            errorInfo.statusCode ? `[${errorInfo.statusCode}]` : '',
-            errorInfo.message
-        ].filter(Boolean);
+        const parts = [`[${errorInfo.type.toUpperCase()}]`, errorInfo.code ? `[${errorInfo.code}]` : '', errorInfo.statusCode ? `[${errorInfo.statusCode}]` : '', errorInfo.message].filter(Boolean);
 
         return parts.join(' ');
     }
@@ -264,8 +220,7 @@ export class ErrorLoggerService {
     private shouldLogToServer(errorInfo: ErrorInfo): boolean {
         // Only log high severity errors to server in production
         if (this.envService.isProduction) {
-            return errorInfo.severity === ErrorSeverity.HIGH || 
-                   errorInfo.severity === ErrorSeverity.CRITICAL;
+            return errorInfo.severity === ErrorSeverity.HIGH || errorInfo.severity === ErrorSeverity.CRITICAL;
         }
 
         // Log all errors to server in development
@@ -280,7 +235,7 @@ export class ErrorLoggerService {
     private logToServer(errorInfo: ErrorInfo): void {
         // TODO: Implement remote logging service integration
         // Example: Send to Sentry, LogRocket, CloudWatch, etc.
-        
+
         if (!this.envService.isProduction) {
             this.logger.debug('[ErrorLogger] Would log to server in production:', errorInfo);
         }
@@ -326,4 +281,3 @@ export class ErrorLoggerService {
         return ErrorSeverity.LOW;
     }
 }
-

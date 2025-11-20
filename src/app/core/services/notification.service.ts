@@ -9,14 +9,7 @@ export type NotificationSeverity = 'success' | 'info' | 'warn' | 'error';
 /**
  * Notification position on screen.
  */
-export type NotificationPosition = 
-    | 'top-left' 
-    | 'top-center' 
-    | 'top-right' 
-    | 'bottom-left' 
-    | 'bottom-center' 
-    | 'bottom-right' 
-    | 'center';
+export type NotificationPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'center';
 
 /**
  * Notification options for customizing display behavior.
@@ -74,21 +67,21 @@ export interface Notification {
 /**
  * Service for displaying toast notifications throughout the application.
  * Wraps PrimeNG MessageService with a simplified, type-safe API.
- * 
+ *
  * @example
  * ```typescript
  * constructor(private notificationService: NotificationService) {}
- * 
+ *
  * // Simple success notification
  * this.notificationService.showSuccess('Data saved successfully!');
- * 
+ *
  * // Error with custom duration
  * this.notificationService.showError(
  *   'Failed to save data',
  *   'Error',
  *   { life: 5000 }
  * );
- * 
+ *
  * // Persistent notification
  * this.notificationService.showWarning(
  *   'Please complete your profile',
@@ -111,56 +104,35 @@ export class NotificationService {
     /**
      * Shows a success notification.
      */
-    showSuccess(
-        message: string,
-        title: string = 'Success',
-        options?: NotificationOptions
-    ): void {
+    showSuccess(message: string, title: string = 'Success', options?: NotificationOptions): void {
         this.show('success', title, message, options);
     }
 
     /**
      * Shows an info notification.
      */
-    showInfo(
-        message: string,
-        title: string = 'Info',
-        options?: NotificationOptions
-    ): void {
+    showInfo(message: string, title: string = 'Info', options?: NotificationOptions): void {
         this.show('info', title, message, options);
     }
 
     /**
      * Shows a warning notification.
      */
-    showWarning(
-        message: string,
-        title: string = 'Warning',
-        options?: NotificationOptions
-    ): void {
+    showWarning(message: string, title: string = 'Warning', options?: NotificationOptions): void {
         this.show('warn', title, message, options);
     }
 
     /**
      * Shows an error notification.
      */
-    showError(
-        message: string,
-        title: string = 'Error',
-        options?: NotificationOptions
-    ): void {
+    showError(message: string, title: string = 'Error', options?: NotificationOptions): void {
         this.show('error', title, message, options);
     }
 
     /**
      * Shows a custom notification with full control.
      */
-    show(
-        severity: NotificationSeverity,
-        title: string,
-        message: string,
-        options?: NotificationOptions
-    ): void {
+    show(severity: NotificationSeverity, title: string, message: string, options?: NotificationOptions): void {
         this.messageService.add({
             severity,
             summary: title,
@@ -179,13 +151,8 @@ export class NotificationService {
      * Shows multiple notifications at once.
      */
     showMultiple(notifications: Notification[]): void {
-        notifications.forEach(notification => {
-            this.show(
-                notification.severity,
-                notification.summary,
-                notification.detail,
-                notification.options
-            );
+        notifications.forEach((notification) => {
+            this.show(notification.severity, notification.summary, notification.detail, notification.options);
         });
     }
 
@@ -206,11 +173,7 @@ export class NotificationService {
     /**
      * Shows a confirmation-style notification (info with action required styling).
      */
-    showConfirmation(
-        message: string,
-        title: string = 'Confirmation',
-        options?: NotificationOptions
-    ): void {
+    showConfirmation(message: string, title: string = 'Confirmation', options?: NotificationOptions): void {
         this.show('info', title, message, {
             ...options,
             sticky: true,
@@ -222,12 +185,9 @@ export class NotificationService {
      * Shows a loading notification (usually sticky until cleared).
      * Returns a function to clear this specific notification.
      */
-    showLoading(
-        message: string = 'Loading...',
-        title: string = 'Please wait'
-    ): () => void {
+    showLoading(message: string = 'Loading...', title: string = 'Please wait'): () => void {
         const key = `loading-${Date.now()}`;
-        
+
         this.show('info', title, message, {
             sticky: true,
             closable: false,
@@ -241,10 +201,7 @@ export class NotificationService {
     /**
      * Shows a validation error notification with formatted error messages.
      */
-    showValidationErrors(
-        errors: Record<string, string[]> | string[],
-        title: string = 'Validation Error'
-    ): void {
+    showValidationErrors(errors: Record<string, string[]> | string[], title: string = 'Validation Error'): void {
         let message: string;
 
         if (Array.isArray(errors)) {
@@ -261,10 +218,7 @@ export class NotificationService {
     /**
      * Shows a success notification for common CRUD operations.
      */
-    showOperationSuccess(
-        operation: 'created' | 'updated' | 'deleted' | 'saved',
-        entity: string = 'Item'
-    ): void {
+    showOperationSuccess(operation: 'created' | 'updated' | 'deleted' | 'saved', entity: string = 'Item'): void {
         const messages = {
             created: `${entity} created successfully`,
             updated: `${entity} updated successfully`,
@@ -278,10 +232,7 @@ export class NotificationService {
     /**
      * Shows an error notification for common CRUD operations.
      */
-    showOperationError(
-        operation: 'create' | 'update' | 'delete' | 'save' | 'load',
-        entity: string = 'Item'
-    ): void {
+    showOperationError(operation: 'create' | 'update' | 'delete' | 'save' | 'load', entity: string = 'Item'): void {
         const messages = {
             create: `Failed to create ${entity}`,
             update: `Failed to update ${entity}`,
@@ -296,27 +247,21 @@ export class NotificationService {
     /**
      * Shows a network error notification.
      */
-    showNetworkError(
-        message: string = 'Unable to connect to server. Please check your internet connection.'
-    ): void {
+    showNetworkError(message: string = 'Unable to connect to server. Please check your internet connection.'): void {
         this.showError(message, 'Network Error', { life: 7000 });
     }
 
     /**
      * Shows an authentication error notification.
      */
-    showAuthenticationError(
-        message: string = 'Your session has expired. Please log in again.'
-    ): void {
+    showAuthenticationError(message: string = 'Your session has expired. Please log in again.'): void {
         this.showWarning(message, 'Authentication Required', { sticky: true });
     }
 
     /**
      * Shows an authorization error notification.
      */
-    showAuthorizationError(
-        message: string = 'You do not have permission to perform this action.'
-    ): void {
+    showAuthorizationError(message: string = 'You do not have permission to perform this action.'): void {
         this.showError(message, 'Access Denied', { life: 5000 });
     }
 
@@ -324,12 +269,6 @@ export class NotificationService {
      * Shows a custom notification using Notification object.
      */
     showNotification(notification: Notification): void {
-        this.show(
-            notification.severity,
-            notification.summary,
-            notification.detail,
-            notification.options
-        );
+        this.show(notification.severity, notification.summary, notification.detail, notification.options);
     }
 }
-

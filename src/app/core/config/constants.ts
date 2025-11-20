@@ -11,7 +11,7 @@ export const API_CONFIG = {
     RETRY_ATTEMPTS: 3,
     RETRY_DELAY: 1000, // 1 second
     PAGE_SIZE_DEFAULT: 20,
-    PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
+    PAGE_SIZE_OPTIONS: [10, 20, 50, 100]
 } as const;
 
 /**
@@ -23,7 +23,7 @@ export const STORAGE_KEYS = {
     USER_PREFERENCES: 'hrm_user_preferences',
     LANGUAGE: 'hrm_language',
     THEME: 'hrm_theme',
-    LAST_ROUTE: 'hrm_last_route',
+    LAST_ROUTE: 'hrm_last_route'
 } as const;
 
 /**
@@ -35,7 +35,7 @@ export const DATE_FORMATS = {
     DISPLAY_FULL: 'dd/MM/yyyy HH:mm:ss',
     API: 'yyyy-MM-dd',
     API_TIME: "yyyy-MM-dd'T'HH:mm:ss",
-    API_FULL: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+    API_FULL: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 } as const;
 
 /**
@@ -55,7 +55,7 @@ export const HTTP_STATUS = {
     INTERNAL_SERVER_ERROR: 500,
     BAD_GATEWAY: 502,
     SERVICE_UNAVAILABLE: 503,
-    GATEWAY_TIMEOUT: 504,
+    GATEWAY_TIMEOUT: 504
 } as const;
 
 /**
@@ -65,7 +65,7 @@ export const AUTH_CONFIG = {
     TOKEN_REFRESH_THRESHOLD: 300, // 5 minutes before expiration
     SESSION_TIMEOUT: 3600, // 1 hour
     MAX_LOGIN_ATTEMPTS: 5,
-    LOCKOUT_DURATION: 900, // 15 minutes
+    LOCKOUT_DURATION: 900 // 15 minutes
 } as const;
 
 /**
@@ -77,7 +77,7 @@ export const VALIDATION = {
     PASSWORD_MIN_LENGTH: 8,
     PASSWORD_PATTERN: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
     USERNAME_MIN_LENGTH: 3,
-    USERNAME_MAX_LENGTH: 50,
+    USERNAME_MAX_LENGTH: 50
 } as const;
 
 /**
@@ -88,7 +88,7 @@ export const UI_CONFIG = {
     DEBOUNCE_TIME: 300, // 300ms
     ANIMATION_DURATION: 200, // 200ms
     LOADING_DELAY: 500, // 500ms before showing loader
-    ITEMS_PER_PAGE: 20,
+    ITEMS_PER_PAGE: 20
 } as const;
 
 /**
@@ -97,13 +97,7 @@ export const UI_CONFIG = {
 export const FILE_UPLOAD = {
     MAX_SIZE: 5242880, // 5MB in bytes
     ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-    ALLOWED_DOCUMENT_TYPES: [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ],
+    ALLOWED_DOCUMENT_TYPES: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
 } as const;
 
 /**
@@ -119,7 +113,7 @@ export const APP_ROUTES = {
     SETTINGS: '/settings',
     NOT_FOUND: '/error/404',
     FORBIDDEN: '/error/403',
-    SERVER_ERROR: '/error/500',
+    SERVER_ERROR: '/error/500'
 } as const;
 
 /**
@@ -129,7 +123,7 @@ export const APP_ROUTES = {
 export const USER_ROLES = {
     ADMIN: 'ADMIN',
     USER: 'USER',
-    GUEST: 'GUEST',
+    GUEST: 'GUEST'
 } as const;
 
 /**
@@ -144,6 +138,5 @@ export const FEATURE_FLAGS = {
     ENABLE_ANALYTICS: 'enableAnalytics',
     ENABLE_ERROR_TRACKING: 'enableErrorTracking',
     ENABLE_NOTIFICATIONS: 'enableNotifications',
-    ENABLE_DARK_MODE: 'enableDarkMode',
+    ENABLE_DARK_MODE: 'enableDarkMode'
 } as const;
-

@@ -27,19 +27,19 @@ export interface LogEntry {
 /**
  * Logger service that respects environment configuration.
  * Provides structured logging with context support for better debugging and monitoring.
- * 
+ *
  * @example
  * ```typescript
  * // Simple logging
  * this.logger.info('User logged in');
- * 
+ *
  * // Logging with data
  * this.logger.error('Failed to fetch data', error);
- * 
+ *
  * // Structured logging with context
  * this.logger.withContext({ component: 'AuthComponent', action: 'login' })
  *   .info('Login attempt', { email: user.email });
- * 
+ *
  * // Group related logs
  * this.logger.group('API Call', () => {
  *   this.logger.info('Request sent');
@@ -159,7 +159,7 @@ export class LoggerService {
                 console.timeEnd(label);
             };
         }
-        return () => { }; // No-op if logging disabled
+        return () => {}; // No-op if logging disabled
     }
 
     /**
@@ -209,7 +209,7 @@ export class LoggerService {
      */
     private log(level: LogLevel, message: string, args: unknown[]): void {
         const entry = this.createLogEntry(level, message, args);
-        
+
         // Format message with context if available
         const formattedMessage = this.formatMessage(entry);
 
@@ -246,10 +246,7 @@ export class LoggerService {
      * Formats log message with level and context.
      */
     private formatMessage(entry: LogEntry): string {
-        const parts: string[] = [
-            `[${entry.level.toUpperCase()}]`,
-            `[${this.formatTimestamp(entry.timestamp)}]`
-        ];
+        const parts: string[] = [`[${entry.level.toUpperCase()}]`, `[${this.formatTimestamp(entry.timestamp)}]`];
 
         if (entry.context?.component) {
             parts.push(`[${entry.context.component}]`);
@@ -269,10 +266,10 @@ export class LoggerService {
      */
     private formatTimestamp(isoString: string): string {
         const date = new Date(isoString);
-        return date.toLocaleTimeString('en-US', { 
-            hour12: false, 
-            hour: '2-digit', 
-            minute: '2-digit', 
+        return date.toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
             second: '2-digit',
             fractionalSecondDigits: 3
         });
@@ -307,4 +304,3 @@ export class LoggerService {
         return messagePriority >= currentPriority;
     }
 }
-

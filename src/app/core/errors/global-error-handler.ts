@@ -7,13 +7,13 @@ import { ApplicationError, ErrorType, ErrorSeverity } from './error.model';
 /**
  * Global error handler that catches all unhandled errors in the application.
  * Provides centralized error handling, logging, and user notification.
- * 
+ *
  * This handler:
  * - Catches unhandled JavaScript errors
  * - Logs errors with detailed information
  * - Shows user-friendly error messages
  * - Prevents application crashes
- * 
+ *
  * @example
  * ```typescript
  * // Register in app.config.ts
@@ -44,7 +44,7 @@ export class GlobalErrorHandler implements ErrorHandler {
 
         try {
             const appError = this.normalizeError(error);
-            
+
             // Log the error
             this.errorLogger.logError(appError);
 
@@ -83,11 +83,7 @@ export class GlobalErrorHandler implements ErrorHandler {
 
         // Unknown error type
         const message = typeof error === 'string' ? error : 'An unexpected error occurred';
-        return new ApplicationError(
-            message,
-            ErrorType.UNKNOWN,
-            ErrorSeverity.MEDIUM
-        );
+        return new ApplicationError(message, ErrorType.UNKNOWN, ErrorSeverity.MEDIUM);
     }
 
     /**
@@ -98,57 +94,27 @@ export class GlobalErrorHandler implements ErrorHandler {
         const errorMessage = error.message.toLowerCase();
 
         // Network errors
-        if (
-            errorName.includes('network') ||
-            errorMessage.includes('network') ||
-            errorMessage.includes('fetch') ||
-            errorMessage.includes('timeout')
-        ) {
-            return new ApplicationError(
-                'Network connection error. Please check your internet connection.',
-                ErrorType.NETWORK,
-                ErrorSeverity.HIGH,
-                { originalError: error }
-            );
+        if (errorName.includes('network') || errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('timeout')) {
+            return new ApplicationError('Network connection error. Please check your internet connection.', ErrorType.NETWORK, ErrorSeverity.HIGH, { originalError: error });
         }
 
         // Reference errors (undefined variables, functions)
         if (errorName === 'referenceerror') {
-            return new ApplicationError(
-                'A programming error occurred. Please refresh the page.',
-                ErrorType.RUNTIME,
-                ErrorSeverity.HIGH,
-                { originalError: error }
-            );
+            return new ApplicationError('A programming error occurred. Please refresh the page.', ErrorType.RUNTIME, ErrorSeverity.HIGH, { originalError: error });
         }
 
         // Type errors
         if (errorName === 'typeerror') {
-            return new ApplicationError(
-                'An unexpected error occurred. Please try again.',
-                ErrorType.RUNTIME,
-                ErrorSeverity.MEDIUM,
-                { originalError: error }
-            );
+            return new ApplicationError('An unexpected error occurred. Please try again.', ErrorType.RUNTIME, ErrorSeverity.MEDIUM, { originalError: error });
         }
 
         // Syntax errors
         if (errorName === 'syntaxerror') {
-            return new ApplicationError(
-                'A system error occurred. Please refresh the page.',
-                ErrorType.RUNTIME,
-                ErrorSeverity.CRITICAL,
-                { originalError: error }
-            );
+            return new ApplicationError('A system error occurred. Please refresh the page.', ErrorType.RUNTIME, ErrorSeverity.CRITICAL, { originalError: error });
         }
 
         // Default runtime error
-        return new ApplicationError(
-            error.message || 'An unexpected error occurred',
-            ErrorType.RUNTIME,
-            ErrorSeverity.MEDIUM,
-            { originalError: error }
-        );
+        return new ApplicationError(error.message || 'An unexpected error occurred', ErrorType.RUNTIME, ErrorSeverity.MEDIUM, { originalError: error });
     }
 
     /**
@@ -167,27 +133,15 @@ export class GlobalErrorHandler implements ErrorHandler {
                 break;
 
             case ErrorSeverity.HIGH:
-                this.notificationService?.showError(
-                    userMessage,
-                    'Error',
-                    { life: 10000 }
-                );
+                this.notificationService?.showError(userMessage, 'Error', { life: 10000 });
                 break;
 
             case ErrorSeverity.MEDIUM:
-                this.notificationService?.showWarning(
-                    userMessage,
-                    'Warning',
-                    { life: 7000 }
-                );
+                this.notificationService?.showWarning(userMessage, 'Warning', { life: 7000 });
                 break;
 
             case ErrorSeverity.LOW:
-                this.notificationService?.showInfo(
-                    userMessage,
-                    'Notice',
-                    { life: 5000 }
-                );
+                this.notificationService?.showInfo(userMessage, 'Notice', { life: 5000 });
                 break;
         }
     }
@@ -236,19 +190,10 @@ export class GlobalErrorHandler implements ErrorHandler {
      * Checks if message is too technical for end users.
      */
     private isTechnicalMessage(message: string): boolean {
-        const technicalKeywords = [
-            'undefined',
-            'null',
-            'cannot read property',
-            'is not a function',
-            'is not defined',
-            'syntaxerror',
-            'typeerror',
-            'referenceerror'
-        ];
+        const technicalKeywords = ['undefined', 'null', 'cannot read property', 'is not a function', 'is not defined', 'syntaxerror', 'typeerror', 'referenceerror'];
 
         const lowerMessage = message.toLowerCase();
-        return technicalKeywords.some(keyword => lowerMessage.includes(keyword));
+        return technicalKeywords.some((keyword) => lowerMessage.includes(keyword));
     }
 
     /**
@@ -266,9 +211,7 @@ export class GlobalErrorHandler implements ErrorHandler {
         // For critical runtime errors, suggest page refresh
         if (error.type === ErrorType.RUNTIME) {
             setTimeout(() => {
-                const shouldReload = confirm(
-                    'A critical error occurred. Would you like to reload the page?'
-                );
+                const shouldReload = confirm('A critical error occurred. Would you like to reload the page?');
                 if (shouldReload) {
                     window.location.reload();
                 }
@@ -292,4 +235,3 @@ export class GlobalErrorHandler implements ErrorHandler {
         return !/localhost|127\.0\.0\.1|0\.0\.0\.0/.test(window.location.hostname);
     }
 }
-

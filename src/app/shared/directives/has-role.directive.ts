@@ -1,11 +1,4 @@
-import {
-  Directive,
-  Input,
-  OnDestroy,
-  OnInit,
-  TemplateRef,
-  ViewContainerRef,
-} from '@angular/core';
+import { Directive, Input, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Subject } from 'rxjs';
 
 /**
@@ -17,52 +10,51 @@ import { Subject } from 'rxjs';
  * <div *appHasRole="['admin', 'manager']">Management Options</div>
  */
 @Directive({
-  selector: '[appHasRole]',
-  standalone: true,
+    selector: '[appHasRole]',
+    standalone: true
 })
 export class HasRoleDirective implements OnInit, OnDestroy {
-  @Input() appHasRole: string | string[] = [];
+    @Input() appHasRole: string | string[] = [];
 
-  private destroy$ = new Subject<void>();
-  private hasView = false;
+    private destroy$ = new Subject<void>();
+    private hasView = false;
 
-  constructor(
-    private templateRef: TemplateRef<unknown>,
-    private viewContainer: ViewContainerRef
-  ) {}
+    constructor(
+        private templateRef: TemplateRef<unknown>,
+        private viewContainer: ViewContainerRef
+    ) {}
 
-  ngOnInit(): void {
-    this.updateView();
-  }
-
-  private updateView(): void {
-    const hasRole = this.checkRole();
-
-    if (hasRole && !this.hasView) {
-      this.viewContainer.createEmbeddedView(this.templateRef);
-      this.hasView = true;
-    } else if (!hasRole && this.hasView) {
-      this.viewContainer.clear();
-      this.hasView = false;
+    ngOnInit(): void {
+        this.updateView();
     }
-  }
 
-  private checkRole(): boolean {
-    // TODO: Inject AuthService from core
-    // For now, return true as a placeholder
-    // In production, implement:
-    // return this.authService.hasRole(this.appHasRole);
-    
-    // Placeholder logic - replace with actual role check
-    if (Array.isArray(this.appHasRole)) {
-      return this.appHasRole.length > 0;
+    private updateView(): void {
+        const hasRole = this.checkRole();
+
+        if (hasRole && !this.hasView) {
+            this.viewContainer.createEmbeddedView(this.templateRef);
+            this.hasView = true;
+        } else if (!hasRole && this.hasView) {
+            this.viewContainer.clear();
+            this.hasView = false;
+        }
     }
-    return !!this.appHasRole;
-  }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+    private checkRole(): boolean {
+        // TODO: Inject AuthService from core
+        // For now, return true as a placeholder
+        // In production, implement:
+        // return this.authService.hasRole(this.appHasRole);
+
+        // Placeholder logic - replace with actual role check
+        if (Array.isArray(this.appHasRole)) {
+            return this.appHasRole.length > 0;
+        }
+        return !!this.appHasRole;
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 }
-

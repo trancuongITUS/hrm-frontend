@@ -6,7 +6,7 @@ import { TokenService } from '../services/token.service';
 /**
  * Auth guard that protects routes from unauthorized access.
  * Redirects unauthenticated users to the login page.
- * 
+ *
  * Usage in routes:
  * ```typescript
  * {
@@ -16,10 +16,7 @@ import { TokenService } from '../services/token.service';
  * }
  * ```
  */
-export const authGuard: CanActivateFn = (
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-) => {
+export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const authService = inject(AuthService);
     const tokenService = inject(TokenService);
     const router = inject(Router);
@@ -46,7 +43,7 @@ export const authGuard: CanActivateFn = (
 /**
  * Guard that redirects authenticated users away from auth pages.
  * Useful for login/register pages - prevents authenticated users from accessing them.
- * 
+ *
  * Usage in routes:
  * ```typescript
  * {
@@ -72,4 +69,3 @@ export const noAuthGuard: CanActivateFn = () => {
 
     return true;
 };
-

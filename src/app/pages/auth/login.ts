@@ -47,29 +47,10 @@ import { AuthService } from '@core/auth';
                             }
 
                             <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <input 
-                                pInputText 
-                                id="email1" 
-                                type="email" 
-                                placeholder="Email address" 
-                                class="w-full md:w-120 mb-8" 
-                                [(ngModel)]="email" 
-                                [disabled]="isLoading()"
-                                (keyup.enter)="onLogin()"
-                            />
+                            <input pInputText id="email1" type="email" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" [disabled]="isLoading()" (keyup.enter)="onLogin()" />
 
                             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                            <p-password 
-                                id="password1" 
-                                [(ngModel)]="password" 
-                                placeholder="Password" 
-                                [toggleMask]="true" 
-                                styleClass="mb-4" 
-                                [fluid]="true" 
-                                [feedback]="false"
-                                [disabled]="isLoading()"
-                                (keyup.enter)="onLogin()"
-                            ></p-password>
+                            <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" [disabled]="isLoading()" (keyup.enter)="onLogin()"></p-password>
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
@@ -78,13 +59,7 @@ import { AuthService } from '@core/auth';
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                             </div>
-                            <p-button 
-                                label="Sign In" 
-                                styleClass="w-full" 
-                                [loading]="isLoading()"
-                                [disabled]="isLoading() || !email || !password"
-                                (onClick)="onLogin()"
-                            ></p-button>
+                            <p-button label="Sign In" styleClass="w-full" [loading]="isLoading()" [disabled]="isLoading() || !email || !password" (onClick)="onLogin()"></p-button>
                         </div>
                     </div>
                 </div>
@@ -127,29 +102,31 @@ export class Login {
 
         this.isLoading.set(true);
 
-        this.authService.login({
-            email: this.email,
-            password: this.password,
-            rememberMe: this.rememberMe
-        }).subscribe({
-            next: () => {
-                this.isLoading.set(false);
-                
-                // Get the return URL from query params or default to home
-                const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-                this.router.navigate([returnUrl]);
-            },
-            error: (error) => {
-                this.isLoading.set(false);
-                
-                // Extract error message
-                const message = error?.message || error?.error?.message || 'Login failed. Please check your credentials.';
-                this.errorMessage.set(message);
-                
-                // Clear password on error
-                this.password = '';
-            }
-        });
+        this.authService
+            .login({
+                email: this.email,
+                password: this.password,
+                rememberMe: this.rememberMe
+            })
+            .subscribe({
+                next: () => {
+                    this.isLoading.set(false);
+
+                    // Get the return URL from query params or default to home
+                    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+                    this.router.navigate([returnUrl]);
+                },
+                error: (error) => {
+                    this.isLoading.set(false);
+
+                    // Extract error message
+                    const message = error?.message || error?.error?.message || 'Login failed. Please check your credentials.';
+                    this.errorMessage.set(message);
+
+                    // Clear password on error
+                    this.password = '';
+                }
+            });
     }
 
     /**

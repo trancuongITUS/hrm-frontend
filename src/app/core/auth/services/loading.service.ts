@@ -9,10 +9,10 @@ import { Injectable, signal, computed } from '@angular/core';
 })
 export class LoadingService {
     private readonly loadingCountSignal = signal<number>(0);
-    
+
     // Public readonly computed signal for loading state
     readonly isLoading = computed(() => this.loadingCountSignal() > 0);
-    
+
     // Public readonly signal for loading count (useful for debugging)
     readonly loadingCount = this.loadingCountSignal.asReadonly();
 
@@ -20,14 +20,14 @@ export class LoadingService {
      * Increments the loading counter and shows the loading indicator.
      */
     show(): void {
-        this.loadingCountSignal.update(count => count + 1);
+        this.loadingCountSignal.update((count) => count + 1);
     }
 
     /**
      * Decrements the loading counter and hides the loading indicator if counter reaches 0.
      */
     hide(): void {
-        this.loadingCountSignal.update(count => Math.max(0, count - 1));
+        this.loadingCountSignal.update((count) => Math.max(0, count - 1));
     }
 
     /**
@@ -44,4 +44,3 @@ export class LoadingService {
         return this.loadingCountSignal() > 0;
     }
 }
-

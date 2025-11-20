@@ -48,8 +48,8 @@ export function createApiEndpoints(baseUrl: string, version: string): ApiEndpoin
             forgotPassword: `${apiBase}/auth/forgot-password`,
             resetPassword: `${apiBase}/auth/reset-password`,
             verifyEmail: `${apiBase}/auth/verify-email`,
-            changePassword: `${apiBase}/auth/change-password`,
-        },
+            changePassword: `${apiBase}/auth/change-password`
+        }
     };
 }
 
@@ -62,7 +62,6 @@ export function createApiConfig(baseUrl: string): ApiConfig {
     return {
         baseUrl,
         version,
-        endpoints: createApiEndpoints(baseUrl, version),
+        endpoints: createApiEndpoints(baseUrl, version)
     };
 }
-

@@ -9,7 +9,7 @@ import { ErrorLoggerService } from '@core/errors/error-logger.service';
 /**
  * HTTP error interceptor that handles different types of HTTP errors globally.
  * Provides centralized error handling, logging, and user notifications.
- * 
+ *
  * Features:
  * - Handles client-side and server-side errors
  * - Provides user-friendly error notifications
@@ -31,7 +31,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             if (error.error instanceof ErrorEvent) {
                 // Client-side or network error
                 errorMessage = 'Network connection error. Please check your internet connection.';
-                
+
                 errorLogger.logNetworkError(error.error.message, {
                     url: req.url,
                     method: req.method
@@ -40,7 +40,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 notificationService.showNetworkError(errorMessage);
             } else {
                 // Backend returned an unsuccessful response code
-                
+
                 // Handle specific error codes
                 switch (error.status) {
                     case 0:
@@ -48,37 +48,34 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         errorMessage = 'Unable to connect to server. Please check your internet connection.';
                         notificationService.showNetworkError(errorMessage);
                         break;
-                    
+
                     case 400:
                         errorMessage = 'Bad request. Please check your input.';
                         // Extract validation errors if available
                         if (error.error?.errors && typeof error.error.errors === 'object') {
-                            notificationService.showValidationErrors(
-                                error.error.errors,
-                                'Validation Error'
-                            );
+                            notificationService.showValidationErrors(error.error.errors, 'Validation Error');
                             showNotification = false;
                         } else {
                             notificationService.showWarning(errorMessage, 'Invalid Request');
                         }
                         logger.warn('Bad Request (400):', error);
                         break;
-                    
+
                     case 401:
                         errorMessage = 'Your session has expired. Please log in again.';
                         notificationService.showAuthenticationError(errorMessage);
                         showNotification = false;
-                        
+
                         // Navigate to login after a short delay
                         setTimeout(() => {
                             router.navigate(['/auth/login'], {
                                 queryParams: { returnUrl: router.url }
                             });
                         }, 2000);
-                        
+
                         logger.warn('Unauthorized (401):', error);
                         break;
-                    
+
                     case 403:
                         errorMessage = 'You do not have permission to access this resource.';
                         notificationService.showAuthorizationError(errorMessage);
@@ -86,22 +83,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         router.navigate(['/auth/access']);
                         logger.warn('Forbidden (403):', error);
                         break;
-                    
+
                     case 404:
                         errorMessage = 'The requested resource was not found.';
                         notificationService.showWarning(errorMessage, 'Not Found');
                         showNotification = false;
                         logger.warn('Not Found (404):', error);
                         break;
-                    
+
                     case 422:
                         errorMessage = 'Validation error. Please check your input.';
                         // Extract validation errors if available
                         if (error.error?.errors) {
-                            notificationService.showValidationErrors(
-                                error.error.errors,
-                                'Validation Error'
-                            );
+                            notificationService.showValidationErrors(error.error.errors, 'Validation Error');
                             showNotification = false;
                         } else {
                             notificationService.showWarning(errorMessage, 'Validation Error');
@@ -109,7 +103,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         }
                         logger.warn('Unprocessable Entity (422):', error);
                         break;
-                    
+
                     case 429:
                         errorMessage = 'Too many requests. Please wait a moment and try again.';
                         notificationService.showWarning(errorMessage, 'Rate Limit Exceeded', {
@@ -118,7 +112,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         showNotification = false;
                         logger.warn('Too Many Requests (429):', error);
                         break;
-                    
+
                     case 500:
                         errorMessage = 'Internal server error. Our team has been notified. Please try again later.';
                         notificationService.showError(errorMessage, 'Server Error', {
@@ -127,7 +121,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         showNotification = false;
                         logger.error('Internal Server Error (500):', error);
                         break;
-                    
+
                     case 502:
                     case 503:
                     case 504:
@@ -138,7 +132,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         showNotification = false;
                         logger.error('Service Unavailable:', error);
                         break;
-                    
+
                     default:
                         errorMessage = `Server error: ${error.status}`;
                         logger.error('HTTP Error:', error);
@@ -152,12 +146,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 }
 
                 // Log HTTP error with detailed information
-                errorLogger.logHttpError(
-                    errorMessage,
-                    error.status,
-                    req.url,
-                    req.method
-                );
+                errorLogger.logHttpError(errorMessage, error.status, req.url, req.method);
 
                 // Show generic notification if not already shown
                 if (showNotification && error.status >= 400) {
@@ -190,4 +179,3 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         })
     );
 };
-

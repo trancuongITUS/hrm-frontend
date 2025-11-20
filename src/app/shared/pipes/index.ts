@@ -18,4 +18,3 @@ export * from './slug.pipe';
 export * from './file-size.pipe';
 export * from './percentage.pipe';
 export * from './number-format.pipe';
-

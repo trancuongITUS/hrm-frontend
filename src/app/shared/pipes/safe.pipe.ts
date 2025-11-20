@@ -3,7 +3,7 @@ import { DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl
 
 /**
  * Sanitizes and marks values as safe for Angular's security contexts
- * 
+ *
  * @example
  * ```html
  * <div [innerHTML]="htmlContent | safe: 'html'"></div>
@@ -12,27 +12,26 @@ import { DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl
  * ```
  */
 @Pipe({
-  name: 'safe',
-  standalone: true
+    name: 'safe',
+    standalone: true
 })
 export class SafePipe implements PipeTransform {
-  constructor(private readonly sanitizer: DomSanitizer) {}
+    constructor(private readonly sanitizer: DomSanitizer) {}
 
-  transform(value: string, type: 'html' | 'style' | 'script' | 'url' | 'resourceUrl'): SafeHtml | SafeStyle | SafeScript | SafeUrl | SafeResourceUrl {
-    switch (type) {
-      case 'html':
-        return this.sanitizer.sanitize(1, value) ? this.sanitizer.bypassSecurityTrustHtml(value) : '';
-      case 'style':
-        return this.sanitizer.bypassSecurityTrustStyle(value);
-      case 'script':
-        return this.sanitizer.bypassSecurityTrustScript(value);
-      case 'url':
-        return this.sanitizer.bypassSecurityTrustUrl(value);
-      case 'resourceUrl':
-        return this.sanitizer.bypassSecurityTrustResourceUrl(value);
-      default:
-        return value;
+    transform(value: string, type: 'html' | 'style' | 'script' | 'url' | 'resourceUrl'): SafeHtml | SafeStyle | SafeScript | SafeUrl | SafeResourceUrl {
+        switch (type) {
+            case 'html':
+                return this.sanitizer.sanitize(1, value) ? this.sanitizer.bypassSecurityTrustHtml(value) : '';
+            case 'style':
+                return this.sanitizer.bypassSecurityTrustStyle(value);
+            case 'script':
+                return this.sanitizer.bypassSecurityTrustScript(value);
+            case 'url':
+                return this.sanitizer.bypassSecurityTrustUrl(value);
+            case 'resourceUrl':
+                return this.sanitizer.bypassSecurityTrustResourceUrl(value);
+            default:
+                return value;
+        }
     }
-  }
 }
-

@@ -14,29 +14,28 @@ import { Pipe, PipeTransform } from '@angular/core';
  * ```
  */
 @Pipe({
-  name: 'fileSize',
-  standalone: true
+    name: 'fileSize',
+    standalone: true
 })
 export class FileSizePipe implements PipeTransform {
-  private readonly units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    private readonly units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
 
-  transform(bytes: number, decimals: number = 2): string {
-    if (bytes === 0) {
-      return '0 B';
+    transform(bytes: number, decimals: number = 2): string {
+        if (bytes === 0) {
+            return '0 B';
+        }
+
+        if (!bytes || bytes < 0) {
+            return '';
+        }
+
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        const value = bytes / Math.pow(k, i);
+        const formattedValue = value.toFixed(dm);
+
+        return `${formattedValue} ${this.units[i]}`;
     }
-
-    if (!bytes || bytes < 0) {
-      return '';
-    }
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    const value = bytes / Math.pow(k, i);
-    const formattedValue = value.toFixed(dm);
-
-    return `${formattedValue} ${this.units[i]}`;
-  }
 }
-

@@ -151,27 +151,20 @@ export interface EmptyResponse {
 /**
  * Type guard to check if response is an error.
  */
-export function isApiErrorResponse(
-    response: ApiResponse<any> | ApiErrorResponse
-): response is ApiErrorResponse {
+export function isApiErrorResponse(response: ApiResponse<any> | ApiErrorResponse): response is ApiErrorResponse {
     return !response.success && 'error' in response;
 }
 
 /**
  * Type guard to check if response is paginated.
  */
-export function isPaginatedResponse<T>(
-    response: ApiResponse<T> | PaginatedResponse<T>
-): response is PaginatedResponse<T> {
+export function isPaginatedResponse<T>(response: ApiResponse<T> | PaginatedResponse<T>): response is PaginatedResponse<T> {
     return 'pagination' in response;
 }
 
 /**
  * Type guard to check if response is a validation error.
  */
-export function isValidationErrorResponse(
-    response: ApiErrorResponse
-): response is ValidationErrorResponse {
+export function isValidationErrorResponse(response: ApiErrorResponse): response is ValidationErrorResponse {
     return Array.isArray(response.errors) && response.errors.length > 0;
 }
-

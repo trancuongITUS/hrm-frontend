@@ -4,15 +4,7 @@ import { Observable, throwError, timer } from 'rxjs';
 import { catchError, map, retry, timeout } from 'rxjs/operators';
 import { AppConfigService } from '@core/config/app-config.service';
 import { LoggerService } from '@core/services/logger.service';
-import {
-    ApiResponse,
-    ApiErrorResponse,
-    PaginatedResponse,
-    PaginationParams,
-    SearchParams,
-    ListResponse,
-    EmptyResponse,
-} from './api-response.model';
+import { ApiResponse, ApiErrorResponse, PaginatedResponse, PaginationParams, SearchParams, ListResponse, EmptyResponse } from './api-response.model';
 
 /**
  * HTTP request options interface.
@@ -56,7 +48,7 @@ export interface HttpRequestOptions {
  * ```
  */
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class BaseHttpService {
     private readonly http = inject(HttpClient);
@@ -79,7 +71,7 @@ export class BaseHttpService {
             timeout(this.config.apiTimeout),
             retry({
                 count: this.config.apiRetryAttempts,
-                delay: (error, retryCount) => this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error),
+                delay: (error, retryCount) => (this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error))
             }),
             map((response) => this.extractData<T>(response)),
             catchError((error) => this.handleError(error, 'GET', fullUrl))
@@ -102,7 +94,7 @@ export class BaseHttpService {
             timeout(this.config.apiTimeout),
             retry({
                 count: this.config.apiRetryAttempts,
-                delay: (error, retryCount) => this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error),
+                delay: (error, retryCount) => (this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error))
             }),
             map((response) => response.data),
             catchError((error) => this.handleError(error, 'GET', fullUrl))
@@ -118,11 +110,7 @@ export class BaseHttpService {
      * @param options - Additional request options
      * @returns Observable of the paginated response
      */
-    getPaginated<T>(
-        url: string,
-        params?: PaginationParams,
-        options?: HttpRequestOptions
-    ): Observable<PaginatedResponse<T>> {
+    getPaginated<T>(url: string, params?: PaginationParams, options?: HttpRequestOptions): Observable<PaginatedResponse<T>> {
         const fullUrl = this.buildUrl(url);
         const httpParams = this.buildPaginationParams(params);
         const mergedOptions = this.mergeOptions(options, { params: httpParams });
@@ -133,7 +121,7 @@ export class BaseHttpService {
             timeout(this.config.apiTimeout),
             retry({
                 count: this.config.apiRetryAttempts,
-                delay: (error, retryCount) => this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error),
+                delay: (error, retryCount) => (this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error))
             }),
             catchError((error) => this.handleError(error, 'GET', fullUrl))
         );
@@ -148,11 +136,7 @@ export class BaseHttpService {
      * @param options - Additional request options
      * @returns Observable of the paginated response
      */
-    search<T>(
-        url: string,
-        params?: SearchParams,
-        options?: HttpRequestOptions
-    ): Observable<PaginatedResponse<T>> {
+    search<T>(url: string, params?: SearchParams, options?: HttpRequestOptions): Observable<PaginatedResponse<T>> {
         const fullUrl = this.buildUrl(url);
         const httpParams = this.buildSearchParams(params);
         const mergedOptions = this.mergeOptions(options, { params: httpParams });
@@ -163,7 +147,7 @@ export class BaseHttpService {
             timeout(this.config.apiTimeout),
             retry({
                 count: this.config.apiRetryAttempts,
-                delay: (error, retryCount) => this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error),
+                delay: (error, retryCount) => (this.shouldRetry(error) ? timer(this.config.apiRetryDelay * retryCount) : throwError(() => error))
             }),
             catchError((error) => this.handleError(error, 'GET', fullUrl))
         );
@@ -330,10 +314,7 @@ export class BaseHttpService {
     /**
      * Merges request options.
      */
-    private mergeOptions(
-        options?: HttpRequestOptions,
-        additionalOptions?: HttpRequestOptions
-    ): HttpRequestOptions {
+    private mergeOptions(options?: HttpRequestOptions, additionalOptions?: HttpRequestOptions): HttpRequestOptions {
         if (!additionalOptions) {
             return options || {};
         }
@@ -342,17 +323,14 @@ export class BaseHttpService {
             ...options,
             ...additionalOptions,
             headers: this.mergeHeaders(options?.headers, additionalOptions.headers),
-            params: this.mergeParams(options?.params, additionalOptions.params),
+            params: this.mergeParams(options?.params, additionalOptions.params)
         };
     }
 
     /**
      * Merges HTTP headers.
      */
-    private mergeHeaders(
-        headers1?: HttpHeaders | { [header: string]: string | string[] },
-        headers2?: HttpHeaders | { [header: string]: string | string[] }
-    ): HttpHeaders {
+    private mergeHeaders(headers1?: HttpHeaders | { [header: string]: string | string[] }, headers2?: HttpHeaders | { [header: string]: string | string[] }): HttpHeaders {
         let merged = new HttpHeaders(headers1);
         if (headers2) {
             if (headers2 instanceof HttpHeaders) {
@@ -428,12 +406,12 @@ export class BaseHttpService {
             success: false,
             error: {
                 code: error.status?.toString() || 'UNKNOWN_ERROR',
-                message: error.message || 'An unexpected error occurred',
+                message: error.message || 'An unexpected error occurred'
             },
             message: error.error?.message || error.message || 'An unexpected error occurred',
             statusCode: error.status || 0,
             timestamp: new Date().toISOString(),
-            path: url,
+            path: url
         };
 
         return throwError(() => apiError);
@@ -450,8 +428,7 @@ export class BaseHttpService {
         this.logger.debug(`HTTP ${method} Request:`, {
             url,
             options,
-            body,
+            body
         });
     }
 }
-

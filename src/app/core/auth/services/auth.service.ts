@@ -5,15 +5,7 @@ import { Observable, BehaviorSubject, throwError, of, timer } from 'rxjs';
 import { map, tap, catchError, switchMap, shareReplay } from 'rxjs/operators';
 import { TokenService } from './token.service';
 import { SessionService } from './session.service';
-import { 
-    LoginCredentials, 
-    AuthResponse, 
-    RefreshTokenRequest, 
-    RefreshTokenResponse,
-    PasswordResetRequest,
-    PasswordResetConfirmation,
-    RegistrationData
-} from '../models/auth.model';
+import { LoginCredentials, AuthResponse, RefreshTokenRequest, RefreshTokenResponse, PasswordResetRequest, PasswordResetConfirmation, RegistrationData } from '../models/auth.model';
 import { User } from '../models/user.model';
 
 /**
@@ -84,8 +76,8 @@ export class AuthService {
         this.clearError();
 
         return this.http.post<AuthResponse>(this.AUTH_ENDPOINTS.LOGIN, credentials).pipe(
-            tap(response => this.handleAuthSuccess(response)),
-            catchError(error => this.handleError('Login failed', error)),
+            tap((response) => this.handleAuthSuccess(response)),
+            catchError((error) => this.handleError('Login failed', error)),
             tap(() => this.setLoading(false))
         );
     }
@@ -98,8 +90,8 @@ export class AuthService {
         this.clearError();
 
         return this.http.post<AuthResponse>(this.AUTH_ENDPOINTS.REGISTER, data).pipe(
-            tap(response => this.handleAuthSuccess(response)),
-            catchError(error => this.handleError('Registration failed', error)),
+            tap((response) => this.handleAuthSuccess(response)),
+            catchError((error) => this.handleError('Registration failed', error)),
             tap(() => this.setLoading(false))
         );
     }
@@ -135,9 +127,7 @@ export class AuthService {
     refreshToken(): Observable<string> {
         // If refresh is already in progress, wait for it to complete
         if (this.refreshTokenInProgress) {
-            return this.refreshTokenSubject.asObservable().pipe(
-                switchMap(token => token ? of(token) : throwError(() => new Error('Token refresh failed')))
-            );
+            return this.refreshTokenSubject.asObservable().pipe(switchMap((token) => (token ? of(token) : throwError(() => new Error('Token refresh failed')))));
         }
 
         const refreshToken = this.tokenService.getRefreshToken();
@@ -151,13 +141,13 @@ export class AuthService {
         const request: RefreshTokenRequest = { refreshToken };
 
         return this.http.post<RefreshTokenResponse>(this.AUTH_ENDPOINTS.REFRESH, request).pipe(
-            tap(response => {
+            tap((response) => {
                 this.tokenService.setAccessToken(response.accessToken);
                 this.tokenService.setRefreshToken(response.refreshToken);
                 this.refreshTokenSubject.next(response.accessToken);
             }),
-            map(response => response.accessToken),
-            catchError(error => {
+            map((response) => response.accessToken),
+            catchError((error) => {
                 this.handleAuthError();
                 return throwError(() => error);
             }),
@@ -173,8 +163,8 @@ export class AuthService {
      */
     verifySession(): Observable<User> {
         return this.http.get<User>(this.AUTH_ENDPOINTS.ME).pipe(
-            tap(user => this.sessionService.setUser(user)),
-            catchError(error => {
+            tap((user) => this.sessionService.setUser(user)),
+            catchError((error) => {
                 this.handleAuthError();
                 return throwError(() => error);
             })
@@ -189,7 +179,7 @@ export class AuthService {
         this.clearError();
 
         return this.http.post<void>(this.AUTH_ENDPOINTS.PASSWORD_RESET, request).pipe(
-            catchError(error => this.handleError('Password reset request failed', error)),
+            catchError((error) => this.handleError('Password reset request failed', error)),
             tap(() => this.setLoading(false))
         );
     }
@@ -202,7 +192,7 @@ export class AuthService {
         this.clearError();
 
         return this.http.post<void>(this.AUTH_ENDPOINTS.PASSWORD_RESET_CONFIRM, confirmation).pipe(
-            catchError(error => this.handleError('Password reset confirmation failed', error)),
+            catchError((error) => this.handleError('Password reset confirmation failed', error)),
             tap(() => this.setLoading(false))
         );
     }
@@ -301,13 +291,12 @@ export class AuthService {
         if (typeof error === 'string') {
             return error;
         }
-        
+
         if (error && typeof error === 'object') {
             const err = error as { error?: { message?: string }; message?: string };
             return err.error?.message || err.message || 'Unknown error occurred';
         }
-        
+
         return 'Unknown error occurred';
     }
 }
-

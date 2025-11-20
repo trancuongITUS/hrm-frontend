@@ -6,7 +6,7 @@ import { TokenService } from '../services/token.service';
 /**
  * Factory function that creates a role-based guard.
  * Checks if the user has one or more required roles.
- * 
+ *
  * Usage in routes:
  * ```typescript
  * {
@@ -14,7 +14,7 @@ import { TokenService } from '../services/token.service';
  *   component: AdminComponent,
  *   canActivate: [authGuard, roleGuard(['ADMIN'])]
  * }
- * 
+ *
  * // Multiple roles (user must have at least one)
  * {
  *   path: 'management',
@@ -51,7 +51,7 @@ export function roleGuard(allowedRoles: string[]): CanActivateFn {
 /**
  * Factory function that creates a strict role-based guard.
  * Checks if the user has all required roles.
- * 
+ *
  * Usage in routes:
  * ```typescript
  * {
@@ -88,7 +88,7 @@ export function strictRoleGuard(requiredRoles: string[]): CanActivateFn {
 /**
  * Factory function that creates a permission-based guard.
  * Checks if the user has a specific permission.
- * 
+ *
  * Usage in routes:
  * ```typescript
  * {
@@ -125,7 +125,7 @@ export function permissionGuard(permission: string): CanActivateFn {
 /**
  * Guard that can read allowed roles from route data.
  * More flexible approach using route configuration.
- * 
+ *
  * Usage in routes:
  * ```typescript
  * {
@@ -165,4 +165,3 @@ export const dataRoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
 
     return true;
 };
-

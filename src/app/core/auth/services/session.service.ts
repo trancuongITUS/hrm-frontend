@@ -10,22 +10,22 @@ import { User, UserProfile } from '../models/user.model';
 })
 export class SessionService {
     private readonly USER_SESSION_KEY = 'user_session';
-    
+
     // Signals for reactive state management
     private readonly userSignal = signal<User | null>(null);
     private readonly isAuthenticatedSignal = signal<boolean>(false);
-    
+
     // Public computed signals
     readonly user = this.userSignal.asReadonly();
     readonly isAuthenticated = this.isAuthenticatedSignal.asReadonly();
-    
+
     // Derived computed properties
     readonly userProfile = computed<UserProfile | null>(() => {
         const user = this.userSignal();
         if (!user) {
             return null;
         }
-        
+
         return {
             id: user.id,
             email: user.email,
@@ -36,17 +36,17 @@ export class SessionService {
             roles: user.roles
         };
     });
-    
+
     readonly userRoles = computed<string[]>(() => {
         const user = this.userSignal();
         return user?.roles ?? [];
     });
-    
+
     readonly userId = computed<string | null>(() => {
         const user = this.userSignal();
         return user?.id ?? null;
     });
-    
+
     readonly userEmail = computed<string | null>(() => {
         const user = this.userSignal();
         return user?.email ?? null;
@@ -62,7 +62,7 @@ export class SessionService {
     setUser(user: User | null): void {
         this.userSignal.set(user);
         this.isAuthenticatedSignal.set(!!user);
-        
+
         if (user) {
             this.saveSessionToStorage(user);
         } else {
@@ -90,7 +90,7 @@ export class SessionService {
      */
     hasAnyRole(roles: string[]): boolean {
         const userRoles = this.userRoles();
-        return roles.some(role => userRoles.includes(role));
+        return roles.some((role) => userRoles.includes(role));
     }
 
     /**
@@ -98,7 +98,7 @@ export class SessionService {
      */
     hasAllRoles(roles: string[]): boolean {
         const userRoles = this.userRoles();
-        return roles.every(role => userRoles.includes(role));
+        return roles.every((role) => userRoles.includes(role));
     }
 
     /**
@@ -150,14 +150,14 @@ export class SessionService {
             const sessionData = localStorage.getItem(this.USER_SESSION_KEY);
             if (sessionData) {
                 const user = JSON.parse(sessionData) as User;
-                
+
                 // Convert date strings back to Date objects
                 if (user.lastLoginAt) {
                     user.lastLoginAt = new Date(user.lastLoginAt);
                 }
                 user.createdAt = new Date(user.createdAt);
                 user.updatedAt = new Date(user.updatedAt);
-                
+
                 this.userSignal.set(user);
                 this.isAuthenticatedSignal.set(true);
             }
@@ -185,4 +185,3 @@ export class SessionService {
         return !!localStorage.getItem(this.USER_SESSION_KEY);
     }
 }
-

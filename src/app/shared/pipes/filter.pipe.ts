@@ -14,42 +14,39 @@ import { Pipe, PipeTransform } from '@angular/core';
  * Consider filtering in the component for better performance.
  */
 @Pipe({
-  name: 'filter',
-  standalone: true,
-  pure: false
+    name: 'filter',
+    standalone: true,
+    pure: false
 })
 export class FilterPipe implements PipeTransform {
-  transform<T>(items: T[], searchTerm: string | ((item: T) => boolean), property?: keyof T): T[] {
-    if (!items || !searchTerm) {
-      return items;
+    transform<T>(items: T[], searchTerm: string | ((item: T) => boolean), property?: keyof T): T[] {
+        if (!items || !searchTerm) {
+            return items;
+        }
+
+        // Function predicate
+        if (typeof searchTerm === 'function') {
+            return items.filter(searchTerm);
+        }
+
+        // String search
+        const term = searchTerm.toLowerCase().trim();
+
+        return items.filter((item) => {
+            if (property) {
+                const value = item[property];
+                return this.matchesSearchTerm(value, term);
+            }
+
+            // Search all properties
+            return Object.values(item as object).some((value) => this.matchesSearchTerm(value, term));
+        });
     }
 
-    // Function predicate
-    if (typeof searchTerm === 'function') {
-      return items.filter(searchTerm);
+    private matchesSearchTerm(value: unknown, term: string): boolean {
+        if (value === null || value === undefined) {
+            return false;
+        }
+        return String(value).toLowerCase().includes(term);
     }
-
-    // String search
-    const term = searchTerm.toLowerCase().trim();
-
-    return items.filter((item) => {
-      if (property) {
-        const value = item[property];
-        return this.matchesSearchTerm(value, term);
-      }
-
-      // Search all properties
-      return Object.values(item as object).some((value) =>
-        this.matchesSearchTerm(value, term)
-      );
-    });
-  }
-
-  private matchesSearchTerm(value: unknown, term: string): boolean {
-    if (value === null || value === undefined) {
-      return false;
-    }
-    return String(value).toLowerCase().includes(term);
-  }
 }
-

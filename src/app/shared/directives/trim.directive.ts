@@ -10,34 +10,33 @@ import { NgControl } from '@angular/forms';
  * <input [(ngModel)]="email" appTrim />
  */
 @Directive({
-  selector: '[appTrim]',
-  standalone: true,
+    selector: '[appTrim]',
+    standalone: true
 })
 export class TrimDirective {
-  constructor(private ngControl: NgControl) {}
+    constructor(private ngControl: NgControl) {}
 
-  @HostListener('blur')
-  onBlur(): void {
-    const control = this.ngControl.control;
-    if (control && control.value && typeof control.value === 'string') {
-      const trimmedValue = control.value.trim();
-      if (trimmedValue !== control.value) {
-        control.setValue(trimmedValue);
-      }
+    @HostListener('blur')
+    onBlur(): void {
+        const control = this.ngControl.control;
+        if (control && control.value && typeof control.value === 'string') {
+            const trimmedValue = control.value.trim();
+            if (trimmedValue !== control.value) {
+                control.setValue(trimmedValue);
+            }
+        }
     }
-  }
 
-  @HostListener('input', ['$event'])
-  onInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    // Remove leading whitespace during typing
-    if (input.value && input.value.startsWith(' ')) {
-      const trimmedValue = input.value.trimStart();
-      const control = this.ngControl.control;
-      if (control) {
-        control.setValue(trimmedValue);
-      }
+    @HostListener('input', ['$event'])
+    onInput(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        // Remove leading whitespace during typing
+        if (input.value && input.value.startsWith(' ')) {
+            const trimmedValue = input.value.trimStart();
+            const control = this.ngControl.control;
+            if (control) {
+                control.setValue(trimmedValue);
+            }
+        }
     }
-  }
 }
-

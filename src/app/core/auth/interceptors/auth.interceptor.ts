@@ -13,9 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
 
     // Skip token addition for auth endpoints
-    const isAuthEndpoint = req.url.includes('/auth/login') || 
-                          req.url.includes('/auth/register') || 
-                          req.url.includes('/auth/refresh');
+    const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/register') || req.url.includes('/auth/refresh');
 
     if (isAuthEndpoint) {
         return next(req);
@@ -25,12 +23,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const token = tokenService.getAccessToken();
 
     // Clone the request and add the authorization header if token exists
-    const authReq = token 
+    const authReq = token
         ? req.clone({
-            setHeaders: {
-                Authorization: `Bearer ${token}`
-            }
-        })
+              setHeaders: {
+                  Authorization: `Bearer ${token}`
+              }
+          })
         : req;
 
     // Handle the request and catch 401 errors for token refresh
@@ -39,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             // If we get a 401 and it's not a refresh request, try to refresh the token
             if (error.status === 401 && !req.url.includes('/auth/refresh')) {
                 return authService.refreshToken().pipe(
-                    switchMap(newToken => {
+                    switchMap((newToken) => {
                         // Retry the original request with the new token
                         const retryReq = req.clone({
                             setHeaders: {
@@ -48,7 +46,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                         });
                         return next(retryReq);
                     }),
-                    catchError(refreshError => {
+                    catchError((refreshError) => {
                         // If refresh fails, log out the user
                         authService.logoutLocal();
                         return throwError(() => refreshError);
@@ -60,4 +58,3 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         })
     );
 };
-

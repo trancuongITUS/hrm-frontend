@@ -4,7 +4,7 @@ import { ComponentSize } from '@shared/models';
 
 /**
  * Icon component - PrimeIcons wrapper with type safety and sizing
- * 
+ *
  * @example
  * ```html
  * <app-icon [name]="'pi-user'" [size]="'large'"></app-icon>
@@ -12,59 +12,56 @@ import { ComponentSize } from '@shared/models';
  * ```
  */
 @Component({
-  selector: 'app-icon',
-  imports: [CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <i [class]="iconClass()" [attr.aria-label]="ariaLabel() || name()"></i>
-  `,
-  styles: []
+    selector: 'app-icon',
+    imports: [CommonModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: ` <i [class]="iconClass()" [attr.aria-label]="ariaLabel() || name()"></i> `,
+    styles: []
 })
 export class IconComponent {
-  // Inputs
-  name = input.required<string>();
-  size = input<ComponentSize>('medium');
-  color = input<string>('');
-  spin = input<boolean>(false);
-  customClass = input<string>('');
-  ariaLabel = input<string>('');
+    // Inputs
+    name = input.required<string>();
+    size = input<ComponentSize>('medium');
+    color = input<string>('');
+    spin = input<boolean>(false);
+    customClass = input<string>('');
+    ariaLabel = input<string>('');
 
-  // Computed properties
-  iconClass = computed(() => {
-    const classes: string[] = ['pi'];
-    
-    // Add icon name
-    const iconName = this.name();
-    if (!iconName.startsWith('pi-')) {
-      classes.push(`pi-${iconName}`);
-    } else {
-      classes.push(iconName);
-    }
+    // Computed properties
+    iconClass = computed(() => {
+        const classes: string[] = ['pi'];
 
-    // Size classes
-    const sizeClasses: Record<ComponentSize, string> = {
-      small: 'text-sm',
-      medium: 'text-base',
-      large: 'text-xl'
-    };
-    classes.push(sizeClasses[this.size()]);
+        // Add icon name
+        const iconName = this.name();
+        if (!iconName.startsWith('pi-')) {
+            classes.push(`pi-${iconName}`);
+        } else {
+            classes.push(iconName);
+        }
 
-    // Color
-    if (this.color()) {
-      classes.push(this.color());
-    }
+        // Size classes
+        const sizeClasses: Record<ComponentSize, string> = {
+            small: 'text-sm',
+            medium: 'text-base',
+            large: 'text-xl'
+        };
+        classes.push(sizeClasses[this.size()]);
 
-    // Spin animation
-    if (this.spin()) {
-      classes.push('pi-spin');
-    }
+        // Color
+        if (this.color()) {
+            classes.push(this.color());
+        }
 
-    // Custom classes
-    if (this.customClass()) {
-      classes.push(this.customClass());
-    }
+        // Spin animation
+        if (this.spin()) {
+            classes.push('pi-spin');
+        }
 
-    return classes.join(' ');
-  });
+        // Custom classes
+        if (this.customClass()) {
+            classes.push(this.customClass());
+        }
+
+        return classes.join(' ');
+    });
 }
-

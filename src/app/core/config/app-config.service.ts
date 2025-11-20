@@ -21,7 +21,7 @@ import { API_CONFIG, AUTH_CONFIG, UI_CONFIG, STORAGE_KEYS, DATE_FORMATS } from '
  * ```
  */
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class AppConfigService {
     private readonly envService = inject(EnvironmentService);
@@ -201,4 +201,3 @@ export class AppConfigService {
         return value as T;
     }
 }
-
